@@ -6,28 +6,29 @@ import { hash } from "bcryptjs";
 import { config } from "dotenv";
 
 config({ path: ".env.local" });
-config({ path: ".env", override: false }); // fallback for Docker/Dokploy
+config({ path: ".env", override: false });
 
 const email = process.env.ADMIN_EMAIL;
 const password = process.env.ADMIN_PASSWORD;
 const dbUrl = process.env.DATABASE_URL;
 
 if (!email || !password || !dbUrl) {
-  console.error(
-    "Missing ADMIN_EMAIL, ADMIN_PASSWORD, or DATABASE_URL in .env.local",
-  );
+  console.error("Missing ADMIN_EMAIL, ADMIN_PASSWORD, or DATABASE_URL");
   process.exit(1);
 }
 
-const adapter = new PrismaPg({ connectionString: dbUrl });
-const prisma = new PrismaClient({ adapter });
-const passwordHash = await hash(password, 12);
+void (async () => {
+  const adapter = new PrismaPg({ connectionString: dbUrl });
+  const prisma = new PrismaClient({ adapter });
 
-await prisma.user.upsert({
-  where: { email },
-  update: { passwordHash },
-  create: { email, passwordHash },
-});
+  const passwordHash = await hash(password, 12);
 
-await prisma.$disconnect();
-console.log(`Admin user ready: ${email}`);
+  await prisma.user.upsert({
+    where: { email },
+    update: { passwordHash },
+    create: { email, passwordHash },
+  });
+
+  await prisma.$disconnect();
+  console.log(`Admin user ready: ${email}`);
+})();
