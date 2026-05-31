@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+out/
+
+# Environment files 
+.env
+.env.local
+.env.*.local
+
+# Keep the example template in git
+!.env.example
+
+# TypeScript build cache
+tsconfig.tsbuildinfo
+*.tsbuildinfo
+
+# OS / dev noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+CLAUDE.md
+.claude/
+
+# Logs
+*.log
+npm-debug.log*
+
+# UV proxy bundle 
+public/uv/
+
+# Vercel
+.vercel

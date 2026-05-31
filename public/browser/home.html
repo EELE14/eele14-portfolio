@@ -1,0 +1,880 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EELE14.OS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=VT323&family=Courier+Prime:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --ink: #1a1a1a;
+        --paper: #d4c5a9;
+        --accent: #e8472a;
+        --muted: #8a7e6a;
+        --border: 2px solid #1a1a1a;
+        --shadow: 3px 3px 0 #1a1a1a;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background: var(--paper);
+        color: var(--ink);
+        font-family: "Courier Prime", monospace;
+        font-size: 15px;
+        line-height: 1.6;
+      }
+
+      nav {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: var(--ink);
+        color: var(--paper);
+        display: flex;
+        align-items: center;
+        padding: 0 32px;
+        height: 44px;
+        gap: 0;
+        border-bottom: var(--border);
+      }
+      .nav-logo {
+        font-family: "VT323", monospace;
+        font-size: 22px;
+        letter-spacing: 0.08em;
+        color: var(--paper);
+        margin-right: auto;
+      }
+      .nav-logo span {
+        color: var(--accent);
+      }
+      nav a {
+        color: var(--paper);
+        text-decoration: none;
+        font-size: 13px;
+        padding: 0 14px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        border-left: 1px solid #333;
+        letter-spacing: 0.04em;
+        transition: background 0.1s;
+      }
+      nav a:hover {
+        background: #2a2a2a;
+      }
+      .nav-download {
+        background: var(--accent);
+        color: white !important;
+        font-weight: 700;
+        border-left: 2px solid var(--accent) !important;
+        margin-left: 8px;
+      }
+      .nav-download:hover {
+        background: #c73d23 !important;
+      }
+
+      section {
+        padding: 80px 32px;
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+      section + section {
+        border-top: var(--border);
+      }
+
+      h1 {
+        font-family: "VT323", monospace;
+        font-size: 80px;
+        line-height: 1;
+        letter-spacing: 0.04em;
+      }
+      h2 {
+        font-family: "VT323", monospace;
+        font-size: 48px;
+        letter-spacing: 0.04em;
+        margin-bottom: 8px;
+      }
+      h3 {
+        font-family: "VT323", monospace;
+        font-size: 26px;
+        letter-spacing: 0.04em;
+      }
+
+      .hero {
+        padding: 100px 32px;
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+      .hero-subtitle {
+        font-size: 20px;
+        color: var(--muted);
+        margin: 16px 0 40px;
+        max-width: 540px;
+      }
+      .hero-note {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 12px;
+        letter-spacing: 0.03em;
+      }
+      .hero-buttons {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 22px;
+        font-family: "VT323", monospace;
+        font-size: 20px;
+        letter-spacing: 0.06em;
+        border: var(--border);
+        box-shadow: var(--shadow);
+        cursor: pointer;
+        text-decoration: none;
+        background: var(--paper);
+        color: var(--ink);
+        transition:
+          transform 0.08s,
+          box-shadow 0.08s;
+      }
+      .btn:hover {
+        transform: translate(2px, 2px);
+        box-shadow: 1px 1px 0 var(--ink);
+      }
+      .btn-primary {
+        background: var(--ink);
+        color: var(--paper);
+      }
+      .btn-accent {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+        box-shadow: 3px 3px 0 var(--ink);
+      }
+      .btn-accent:hover {
+        background: #c73d23;
+      }
+
+      .tag {
+        display: inline-block;
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        border: 1px solid var(--muted);
+        padding: 1px 6px;
+        color: var(--muted);
+        vertical-align: middle;
+        margin-left: 8px;
+        font-family: "Courier Prime", monospace;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin-top: 40px;
+      }
+      .card {
+        border: var(--border);
+        box-shadow: var(--shadow);
+        padding: 24px;
+        background: var(--paper);
+      }
+      .card h3 {
+        margin-bottom: 8px;
+      }
+      .card p {
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .card-icon {
+        font-family: "VT323", monospace;
+        font-size: 32px;
+        color: var(--accent);
+        margin-bottom: 8px;
+        display: block;
+      }
+
+      .pricing-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-top: 40px;
+      }
+      @media (max-width: 660px) {
+        .pricing-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .pricing-card {
+        border: var(--border);
+        box-shadow: var(--shadow);
+        padding: 28px 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .pricing-card.featured {
+        border-width: 3px;
+        box-shadow: 5px 5px 0 var(--ink);
+      }
+      .pricing-tier {
+        font-family: "VT323", monospace;
+        font-size: 28px;
+        letter-spacing: 0.06em;
+      }
+      .pricing-desc {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .pricing-price {
+        font-family: "VT323", monospace;
+        font-size: 56px;
+        line-height: 1;
+        color: var(--ink);
+      }
+      .pricing-features {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        font-size: 13px;
+        flex: 1;
+      }
+      .pricing-features li::before {
+        content: "✓  ";
+        color: var(--accent);
+      }
+      .pricing-features li.no::before {
+        content: "✗  ";
+        color: var(--muted);
+      }
+      .pricing-features li.no {
+        color: var(--muted);
+      }
+      .pricing-cta {
+        margin-top: auto;
+      }
+
+      .about-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-top: 40px;
+      }
+      @media (max-width: 560px) {
+        .about-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .policy-section {
+        border-top: 1px solid var(--muted);
+        padding: 20px 0;
+      }
+      .policy-section summary {
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 16px;
+        letter-spacing: 0.04em;
+        user-select: none;
+      }
+      .policy-section summary::-webkit-details-marker {
+        display: none;
+      }
+      .policy-section[open] summary::after {
+        content: "▲";
+      }
+      .policy-section:not([open]) summary::after {
+        content: "▼";
+      }
+      .policy-body {
+        padding: 16px 0 4px;
+        font-size: 13px;
+        color: var(--muted);
+        line-height: 1.7;
+      }
+      .policy-box {
+        border: 1px solid var(--muted);
+        padding: 20px;
+        margin-top: 20px;
+        font-size: 14px;
+      }
+      .policy-box h3 {
+        margin-bottom: 8px;
+        color: var(--ink);
+      }
+
+      footer {
+        background: var(--ink);
+        color: var(--paper);
+        text-align: center;
+        padding: 32px;
+        font-size: 13px;
+        letter-spacing: 0.04em;
+      }
+      footer span {
+        color: var(--accent);
+      }
+
+      .disclaimer {
+        background: var(--ink);
+        color: var(--paper);
+        font-size: 13px;
+        padding: 12px 32px;
+        text-align: center;
+        border-top: 2px solid var(--accent);
+        letter-spacing: 0.03em;
+      }
+      .disclaimer span {
+        color: var(--accent);
+      }
+
+      ul.plain {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 16px 0;
+      }
+      ul.plain li::before {
+        content: "— ";
+        color: var(--muted);
+      }
+      hr {
+        border: none;
+        border-top: var(--border);
+        margin: 32px 0;
+      }
+      .strikethrough {
+        text-decoration: line-through;
+        opacity: 0.5;
+      }
+      .muted {
+        color: var(--muted);
+      }
+
+      #rickroll-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.75);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+      #rickroll-overlay.open {
+        display: flex;
+      }
+      #rickroll-modal {
+        background: var(--paper);
+        border: 2px solid var(--ink);
+        box-shadow: 6px 6px 0 var(--ink);
+        width: 100%;
+        max-width: 480px;
+        display: flex;
+        flex-direction: column;
+      }
+      #rickroll-titlebar {
+        background: var(--ink);
+        color: var(--paper);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 3px 6px 3px 10px;
+        font-family: "VT323", monospace;
+        font-size: 16px;
+        letter-spacing: 0.04em;
+        flex-shrink: 0;
+      }
+      #rickroll-close {
+        background: var(--paper);
+        color: var(--ink);
+        border: 1px solid var(--paper);
+        font-family: "VT323", monospace;
+        font-size: 18px;
+        line-height: 1;
+        padding: 1px 7px 2px;
+        cursor: pointer;
+        flex-shrink: 0;
+      }
+      #rickroll-close:hover {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+      }
+      #rickroll-video {
+        width: 100%;
+        display: block;
+        aspect-ratio: 16 / 9;
+        background: #000;
+      }
+
+      .mobile-hint {
+        display: none;
+      }
+      .in-browser .mobile-hint {
+        display: none !important;
+      }
+
+      @media (max-width: 899px) {
+        .mobile-hint {
+          display: flex;
+          align-items: flex-start;
+          gap: 12px;
+          background: var(--ink);
+          color: var(--paper);
+          padding: 14px 20px;
+          font-size: 13px;
+          line-height: 1.5;
+          border-bottom: 2px solid var(--accent);
+          position: sticky;
+          top: 0;
+          z-index: 200;
+        }
+        .mobile-hint-icon {
+          font-family: "VT323", monospace;
+          font-size: 28px;
+          color: var(--accent);
+          flex-shrink: 0;
+          line-height: 1;
+        }
+        .mobile-hint strong {
+          color: var(--accent);
+          font-family: "VT323", monospace;
+          font-size: 17px;
+          letter-spacing: 0.04em;
+          display: block;
+          margin-bottom: 2px;
+        }
+
+        nav {
+          padding: 0 16px;
+          height: 48px;
+        }
+        nav a:not(.nav-download) {
+          display: none;
+        }
+        .nav-download {
+          margin-left: auto;
+        }
+
+        .hero {
+          padding: 48px 20px 40px;
+        }
+        h1 {
+          font-size: 52px;
+        }
+        .hero-subtitle {
+          font-size: 16px;
+        }
+
+        section {
+          padding: 48px 20px;
+        }
+        h2 {
+          font-size: 36px;
+        }
+
+        .pricing-grid {
+          grid-template-columns: 1fr;
+        }
+        .about-grid {
+          grid-template-columns: 1fr;
+        }
+
+        footer,
+        .disclaimer {
+          padding: 24px 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="mobile-hint">
+      <span class="mobile-hint-icon">[!]</span>
+      <div>
+        <strong>DESKTOP ONLY</strong>
+        EELE14.OS is a full desktop operating system. It requires a screen at
+        least 900px wide to run. Visit on a computer for the real experience.
+      </div>
+    </div>
+
+    <nav>
+      <span class="nav-logo"><span>EELE14</span>.OS</span>
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#about">About</a>
+      <a href="#privacy">Privacy</a>
+      <a
+        href="#"
+        onclick="openRickroll(event)"
+        class="btn btn-accent nav-download"
+        >Download</a
+      >
+    </nav>
+
+    <div class="hero">
+      <h1>EELE14<span style="color: var(--accent)">.</span>OS</h1>
+      <p class="hero-subtitle">
+        This is a real OS, you can download it, enjoy (its not a virus, trust
+        me)<br />
+      </p>
+      <div class="hero-buttons">
+        <a href="#" onclick="openRickroll(event)" class="btn btn-accent"
+          >Download Now</a
+        >
+        <a href="#features" class="btn">Learn more →</a>
+      </div>
+      <p class="hero-note">
+        * It's a website. You already have it. Congratulations.
+      </p>
+    </div>
+
+    <section id="features" style="border-top: var(--border)">
+      <h2>Why EELE14.OS?</h2>
+      <p class="muted">
+        Extremely valid reasons to use an OS that lives in a browser tab.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <span class="card-icon">[CMD]</span>
+          <h3>Real Terminal</h3>
+          <p>
+            Actually runs commands. A very limited set of commands, but still.
+            Better than nothing. Probably.
+          </p>
+        </div>
+        <div class="card">
+          <span class="card-icon">[NET]</span>
+          <h3>Built-in Browser</h3>
+          <p>
+            You're reading this in it right now. It's browsers all the way down.
+            Im not sure this is a feature.
+          </p>
+        </div>
+        <div class="card">
+          <span class="card-icon">[WAR]</span>
+          <h3>Battleship</h3>
+          <p>
+            Fully playable multiplayer Battleship. The most important thing on
+            this website since we all love pew pew.
+          </p>
+        </div>
+        <div class="card">
+          <span class="card-icon">[DIR]</span>
+          <h3>File Explorer</h3>
+          <p>
+            A virtual filesystem. Your files don't exist here and none of it is
+            real but enjoy.
+          </p>
+        </div>
+        <div class="card">
+          <span class="card-icon">[MSG]</span>
+          <h3>Guestbook</h3>
+          <p>
+            Leave a message. It goes into a database. An actual database.
+            Someone might read it. Maybe.
+          </p>
+        </div>
+        <div class="card">
+          <span class="card-icon">[STK]</span>
+          <h3>Built with Real Tech</h3>
+          <p>
+            Genuinely over-engineered for a portfolio. No regrets. Explore the
+            filesystem, you might find more details.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="pricing">
+      <h2>Pricing</h2>
+      <p class="muted">
+        Choose the plan that fits your needs. Im greedy so you should get the
+        Enterprise plan.
+      </p>
+
+      <div class="pricing-grid">
+        <div class="pricing-card">
+          <div>
+            <div class="pricing-tier">Free Tier</div>
+            <div class="pricing-desc">For normal people</div>
+          </div>
+          <div class="pricing-price">$0.00</div>
+          <ul class="pricing-features">
+            <li>Full OS experience</li>
+            <li>All apps included</li>
+            <li>Unlimited window dragging</li>
+            <li class="no">Admin panel access</li>
+            <li class="no">Support (there is none)</li>
+          </ul>
+          <a
+            href="#"
+            onclick="return false;"
+            class="btn"
+            style="text-align: center; justify-content: center"
+            >Start now</a
+          >
+        </div>
+
+        <div class="pricing-card featured">
+          <div>
+            <div class="pricing-tier">Pro Tier</div>
+            <div class="pricing-desc">For true enjoyers</div>
+          </div>
+          <div class="pricing-price">$0.00</div>
+          <ul class="pricing-features">
+            <li>Everything in Free</li>
+            <li>Same features, just vibes</li>
+            <li>Premium support (I might reply on GitHub)</li>
+            <li>Bragging rights</li>
+          </ul>
+          <a
+            href="#"
+            onclick="return false;"
+            class="btn btn-primary"
+            style="text-align: center; justify-content: center"
+            >Go Pro</a
+          >
+        </div>
+
+        <div class="pricing-card">
+          <div>
+            <div class="pricing-tier">Enterprise</div>
+            <div class="pricing-desc">For companies</div>
+          </div>
+          <div class="pricing-price">$0.00</div>
+          <ul class="pricing-features">
+            <li>All Pro features</li>
+            <li>Custom solutions (no)</li>
+            <li>24/7 support (absolutely not)</li>
+            <li>SLA (what does that mean)</li>
+          </ul>
+          <a
+            href="#"
+            onclick="return false;"
+            class="btn"
+            style="text-align: center; justify-content: center"
+            >Contact</a
+          >
+        </div>
+      </div>
+
+      <p
+        style="
+          text-align: center;
+          margin-top: 32px;
+          color: var(--muted);
+          font-size: 13px;
+        "
+      >
+        Still not convinced? I dont know then, I tried it all.
+      </p>
+    </section>
+
+    <section id="about">
+      <h2>About Us <span class="tag">im literally one guy</span></h2>
+      <p>
+        This project was built by me. You can explore the OS if you wanna get to
+        know more about me.
+      </p>
+
+      <ul class="plain">
+        <li>
+          if you use Vim/Neovim/Lazyvim I respect you (but also what's wrong
+          with you)
+        </li>
+        <li>
+          if you use Windows with WSL I hope your tire pops today. Just use
+          Linux.
+        </li>
+        <li>
+          if you think this is "over-engineered" you are objectively correct,
+          but obviously wrong.
+        </li>
+      </ul>
+
+      <div class="about-grid">
+        <div class="card">
+          <h3>Code Quality</h3>
+          <p>
+            Aggressively typed. Read the codebase inside of this OS if you so
+            wish.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Caffeine Status</h3>
+          <p>I dont do that shit, beer it is.</p>
+        </div>
+        <div class="card">
+          <h3>Why a Desktop OS?</h3>
+          <p>
+            Every other portfolio is just a lame landing page. This one has a
+            Battleship. Clearly superior.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Production Ready</h3>
+          <p>At least I hope so, Claude says its fine so i went with it.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="privacy">
+      <h2>Our Privacy Policy <span class="tag">sort of</span></h2>
+      <p>In summary:</p>
+      <ul class="plain">
+        <li>
+          We dont protect your data (Hard to protect something non-existent)
+        </li>
+        <li>
+          The guestbook stores your name, message, and IP. You typed it in.
+          That's on you.
+        </li>
+        <li>Contact form messages go to an email. Shocking, I know.</li>
+      </ul>
+
+      <hr />
+
+      <details class="policy-section" open>
+        <summary>What data do we collect?</summary>
+        <div class="policy-body">
+          Your IP address if you post to the guestbook. That's it. Nothing is
+          ever stored here.
+        </div>
+      </details>
+
+      <details class="policy-section">
+        <summary>How do we use your data?</summary>
+        <div class="policy-body">
+          To render your guestbook entry. That's literally it. There's no
+          analytics, no ad targeting, no tracking pixels. The visit counter is a
+          single integer in a database.
+        </div>
+      </details>
+
+      <details class="policy-section">
+        <summary>How do we protect your data?</summary>
+        <div class="policy-body">We dont.</div>
+      </details>
+
+      <div class="policy-box">
+        <h3>Cookie Policy</h3>
+        <p>
+          There is one cookie which you will never see because its for admin
+          auth. Cheers.
+        </p>
+      </div>
+
+      <div class="policy-box" style="margin-top: 12px">
+        <h3>Fingerprinting Policy</h3>
+        <p>
+          I dont think we use fingerprints. If we do accidentally then i
+          apologise in advance.
+        </p>
+      </div>
+
+      <p style="text-align: center; margin-top: 32px">
+        <a href="#" onclick="return false;" class="btn"
+          >No devious trickery, pinkie promise</a
+        >
+      </p>
+    </section>
+
+    <div class="disclaimer">
+      This is a portfolio website. EELE14.OS is definitely a real operating
+      system. You can absoulutely install it. It runs on
+      <span>your PC if you install it</span> and audacity.
+    </div>
+
+    <footer>
+      <p>
+        EELE14.OS &mdash; &copy; 2026 eele14 &mdash; Built with
+        <span>Next.js</span>, TypeScript &amp; poor life choices.
+      </p>
+      <p style="margin-top: 8px; color: #555; font-size: 12px">
+        Enjoy your day.
+      </p>
+    </footer>
+
+    <div id="rickroll-overlay">
+      <div id="rickroll-modal">
+        <div id="rickroll-titlebar">
+          <span>Never Gonna Give You Up.mp4</span>
+          <button id="rickroll-close" onclick="closeRickroll()">X</button>
+        </div>
+        <video
+          id="rickroll-video"
+          src="/rickroll.mp4"
+          controls
+          playsinline
+        ></video>
+      </div>
+    </div>
+
+    <script>
+      var context = new URLSearchParams(window.location.search).get("context");
+      var isMobile = context === "mobile";
+      var isBrowser = context === "browser";
+
+      if (isBrowser) document.documentElement.classList.add("in-browser");
+
+      function openRickroll(e) {
+        e.preventDefault();
+        if (isMobile) {
+          var overlay = document.getElementById("rickroll-overlay");
+          var video = document.getElementById("rickroll-video");
+          overlay.classList.add("open");
+          video.volume = 0.5;
+          video.play();
+          return;
+        }
+        window.parent.postMessage(
+          {
+            type: "os-open-media",
+            filename: "Never Gonna Give You Up.mp4",
+            value: "/rickroll.mp4",
+          },
+          "*",
+        );
+      }
+
+      function closeRickroll() {
+        var overlay = document.getElementById("rickroll-overlay");
+        var video = document.getElementById("rickroll-video");
+        overlay.classList.remove("open");
+        video.pause();
+        video.currentTime = 0;
+      }
+
+      // Close on backdrop click
+      document
+        .getElementById("rickroll-overlay")
+        .addEventListener("click", function (e) {
+          if (e.target === this) closeRickroll();
+        });
+    </script>
+  </body>
+</html>

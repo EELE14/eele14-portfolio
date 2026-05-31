@@ -1,0 +1,117 @@
+<!-- Copyright (c) 2026 eele14. All Rights Reserved. -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>New Tab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=VT323&family=Courier+Prime&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background: #1a1a1a;
+        color: #d4c5a9;
+        font-family: "VT323", monospace;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        gap: 28px;
+      }
+
+      .logo {
+        font-size: 52px;
+        letter-spacing: 0.12em;
+        color: #e8472a;
+        line-height: 1;
+      }
+
+      .sub {
+        font-family: "Courier Prime", monospace;
+        font-size: 13px;
+        color: #8a7e6a;
+        letter-spacing: 0.05em;
+      }
+
+      .search-form {
+        display: flex;
+        border: 2px solid #d4c5a9;
+        box-shadow: 3px 3px 0 #d4c5a9;
+        width: 420px;
+      }
+
+      .search-form input {
+        flex: 1;
+        background: #1a1a1a;
+        border: none;
+        color: #d4c5a9;
+        font-family: "Courier Prime", monospace;
+        font-size: 15px;
+        padding: 9px 14px;
+        outline: none;
+        min-width: 0;
+      }
+
+      .search-form input::placeholder {
+        color: #8a7e6a;
+      }
+
+      .search-form button {
+        background: #e8472a;
+        border: none;
+        border-left: 2px solid #d4c5a9;
+        color: #fff;
+        font-family: "VT323", monospace;
+        font-size: 22px;
+        padding: 6px 20px;
+        cursor: pointer;
+        letter-spacing: 0.05em;
+        flex-shrink: 0;
+      }
+
+      .search-form button:hover {
+        background: #c73d23;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="logo">BROWSER.EXE</div>
+    <div class="sub">Enter a URL or search term to begin.</div>
+
+    <form class="search-form" onsubmit="navigate(event)">
+      <input
+        id="q"
+        type="text"
+        placeholder="https:// or search query..."
+        autofocus
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <button type="submit">GO</button>
+    </form>
+
+    <script>
+      function navigate(e) {
+        e.preventDefault();
+        var val = document.getElementById("q").value.trim();
+        if (!val) return;
+        window.parent.postMessage(
+          { type: "browser-navigate", value: val },
+          window.location.origin,
+        );
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "esnext"],
+    "strict": true,
+    "noEmit": true,
+    "types": [],
+    "skipLibCheck": true
+  },
+  "include": ["handler-patch.ts"]
+}

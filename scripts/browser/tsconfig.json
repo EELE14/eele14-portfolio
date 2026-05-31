@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["webworker", "esnext"],
+    "strict": true,
+    "noEmit": true,
+    "types": [],
+    "skipLibCheck": true
+  },
+  "include": ["uv.d.ts", "sw.ts", "uv.config.ts"]
+}

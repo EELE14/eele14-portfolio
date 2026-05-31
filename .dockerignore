@@ -1,0 +1,23 @@
+# Version control
+.git
+.gitignore
+
+# Build output 
+.next
+node_modules
+public/uv
+
+# Environment 
+.env
+.env.local
+.env*.local
+
+# Dev
+.DS_Store
+.vscode
+.idea
+*.log
+npm-debug.log*
+
+# Docs
+README.md
