@@ -6,7 +6,7 @@ const CSP = [
   "script-src 'self' 'unsafe-inline'",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
-  "connect-src 'self' wss://eele14.dev",
+  "connect-src 'self' wss://eele14.dev https://ipapi.co",
   "worker-src 'self'",
   "frame-src 'self'",
   "media-src 'self'",
