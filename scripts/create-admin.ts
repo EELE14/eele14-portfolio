@@ -6,6 +6,7 @@ import { hash } from "bcryptjs";
 import { config } from "dotenv";
 
 config({ path: ".env.local" });
+config({ path: ".env", override: false }); // fallback for Docker/Dokploy
 
 const email = process.env.ADMIN_EMAIL;
 const password = process.env.ADMIN_PASSWORD;
