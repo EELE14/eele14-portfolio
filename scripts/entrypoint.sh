@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e
-echo "[portfolio] Running database migrations..."
-node_modules/.bin/prisma migrate deploy
+echo "[portfolio] Syncing database schema..."
+node_modules/.bin/prisma db push
 echo "[portfolio] Starting server..."
 exec node_modules/.bin/tsx server.ts
