@@ -1,5 +1,4 @@
 /* Copyright (c) 2026 eele14. All Rights Reserved. */
-import { resolve4, resolve6 } from "dns/promises";
 import type { IncomingMessage } from "http";
 
 function ipv4ToInt(ip: string): number | null {
@@ -53,6 +52,45 @@ function isPrivateIp(ip: string): boolean {
 const ALLOWED_PROTOCOLS = new Set(["http:", "https:", "ws:", "wss:"]);
 const BLOCKED_HOSTNAME = /\.(local|internal|localhost|onion)$|^localhost$/i;
 
+const DOH = "https://family.cloudflare-dns.com/dns-query";
+
+interface DoHResponse {
+  Status: number;
+  Answer?: { type: number; data: string }[];
+}
+
+async function dohLookup(
+  hostname: string,
+  type: "A" | "AAAA",
+): Promise<string[]> {
+  try {
+    const res = await fetch(
+      `${DOH}?name=${encodeURIComponent(hostname)}&type=${type}`,
+      {
+        headers: { Accept: "application/dns-json" },
+        signal: AbortSignal.timeout(5000),
+      },
+    );
+    if (!res.ok) return [];
+    const data = (await res.json()) as DoHResponse;
+    if (data.Status !== 0) return []; // NXDOMAIN or blocked by family filter
+    const rtype = type === "A" ? 1 : 28;
+    return (data.Answer ?? [])
+      .filter((r) => r.type === rtype)
+      .map((r) => r.data);
+  } catch {
+    return [];
+  }
+}
+
+const SELF_HOSTNAME = (() => {
+  try {
+    return new URL(process.env.ALLOWED_ORIGIN ?? "").hostname.toLowerCase();
+  } catch {
+    return "";
+  }
+})();
+
 export async function validateBareTarget(
   req: IncomingMessage,
 ): Promise<{ ok: boolean; reason?: string }> {
@@ -76,6 +114,13 @@ export async function validateBareTarget(
     return { ok: false, reason: "HOSTNAME_BLOCKED" };
   }
 
+  if (
+    SELF_HOSTNAME &&
+    (hostname === SELF_HOSTNAME || hostname.endsWith(`.${SELF_HOSTNAME}`))
+  ) {
+    return { ok: false, reason: "SELF_REQUEST_BLOCKED" };
+  }
+
   if (/^\d+\.\d+\.\d+\.\d+$/.test(hostname)) {
     return isPrivateIpv4(hostname)
       ? { ok: false, reason: "PRIVATE_IP_BLOCKED" }
@@ -87,14 +132,14 @@ export async function validateBareTarget(
       : { ok: true };
   }
 
-  const [v4, v6] = await Promise.allSettled([
-    resolve4(hostname),
-    resolve6(hostname),
+  const [v4, v6] = await Promise.all([
+    dohLookup(hostname, "A"),
+    dohLookup(hostname, "AAAA"),
   ]);
-  const ips = [
-    ...(v4.status === "fulfilled" ? v4.value : []),
-    ...(v6.status === "fulfilled" ? v6.value : []),
-  ];
+  const ips = [...v4, ...v6];
+
+  // No IPs = domain doesn't exist or was blocked by Cloudflare family filter.
+  if (ips.length === 0) return { ok: false, reason: "DNS_RESOLUTION_FAILED" };
 
   for (const ip of ips) {
     if (isPrivateIp(ip)) return { ok: false, reason: "PRIVATE_IP_BLOCKED" };
