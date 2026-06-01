@@ -66,10 +66,9 @@ export default function Terminal() {
       openBrowserWindow,
       showSecurity: () => setShowSecurityDialog(true),
       logout: () => {
-        const secureFlag =
-          window.location.protocol === "https:" ? "; Secure" : "";
-        document.cookie = `portfolio_session=; path=/; max-age=0; SameSite=Lax${secureFlag}`;
-        setAdmin(false);
+        fetch("/api/auth/logout", { method: "POST" }).finally(() => {
+          setAdmin(false);
+        });
       },
     };
 

@@ -20,7 +20,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   }
 
   const ip = getClientIp(req);
-  if (!rateLimiter(ip)) {
+  if (!rateLimiter.check(ip)) {
     return NextResponse.json({ error: "Too many requests" }, { status: 429 });
   }
 

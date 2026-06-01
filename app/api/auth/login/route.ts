@@ -4,8 +4,28 @@ import { cookies } from "next/headers";
 import { signToken, COOKIE_NAME } from "@/lib/server/auth";
 import { parseBody } from "@/lib/server/api";
 import { prisma } from "@/lib/server/prisma";
+import { makeRateLimiter } from "@/lib/server/rate-limit";
+
+const failLimiter = makeRateLimiter(5, 15 * 60 * 1000, { failuresOnly: true });
+
+function getIp(req: NextRequest): string {
+  const cf = req.headers.get("cf-connecting-ip");
+  if (cf) return cf.trim();
+  const xff = req.headers.get("x-forwarded-for");
+  if (xff) return xff.split(",").at(-1)!.trim();
+  return "unknown";
+}
 
 export async function POST(req: NextRequest) {
+  const ip = getIp(req);
+
+  if (!failLimiter.check(ip)) {
+    return NextResponse.json(
+      { error: "Too many attempts. Try again later." },
+      { status: 429 },
+    );
+  }
+
   const body = await parseBody<{ email?: string; password?: string }>(req);
 
   if (!body) {
@@ -26,6 +46,7 @@ export async function POST(req: NextRequest) {
   const valid = passwordValid && user !== null;
 
   if (!valid) {
+    failLimiter.record(ip);
     return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
   }
 
@@ -40,9 +61,9 @@ export async function POST(req: NextRequest) {
 
   const jar = await cookies();
   jar.set(COOKIE_NAME, token, {
-    httpOnly: false,
+    httpOnly: true,
     secure: isHttps,
-    sameSite: "lax",
+    sameSite: "strict",
     path: "/",
     maxAge: 60 * 60 * 24 * 7,
   });

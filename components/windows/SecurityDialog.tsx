@@ -217,9 +217,12 @@ export default function SecurityDialog() {
                   className="btn"
                   style={primaryBtn}
                   onClick={() => {
-                    document.cookie = `portfolio_session=; path=/; max-age=0; SameSite=Lax${window.location.protocol === "https:" ? "; Secure" : ""}`;
-                    setAdmin(false);
-                    setShowSecurityDialog(false);
+                    fetch("/api/auth/logout", { method: "POST" }).finally(
+                      () => {
+                        setAdmin(false);
+                        setShowSecurityDialog(false);
+                      },
+                    );
                   }}
                 >
                   Log Off

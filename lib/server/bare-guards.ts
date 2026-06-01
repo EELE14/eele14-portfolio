@@ -85,7 +85,7 @@ export async function guardHttp(
     rejectHttp(res, 401, "UNAUTHORIZED", "Unauthorized");
     return false;
   }
-  if (!rateLimiter(ip)) {
+  if (!rateLimiter.check(ip)) {
     console.error("[bare] 429 rate-limit", { ip });
     rejectHttp(res, 429, "TOO_MANY_REQUESTS", "Too Many Requests");
     return false;
@@ -121,7 +121,7 @@ export async function guardWs(
     rejectWs(socket, 401, "Unauthorized");
     return false;
   }
-  if (!rateLimiter(ip)) {
+  if (!rateLimiter.check(ip)) {
     console.error("[bare] ws 429 rate-limit", { ip });
     rejectWs(socket, 429, "Too Many Requests");
     return false;

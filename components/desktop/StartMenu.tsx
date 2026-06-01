@@ -143,10 +143,10 @@ export default function StartMenu({ onClose }: StartMenuProps) {
         <button
           role="menuitem"
           onClick={() => {
-            document.cookie =
-              "portfolio_session=; path=/; max-age=0; SameSite=Lax";
-            setAdmin(false);
-            onClose();
+            fetch("/api/auth/logout", { method: "POST" }).finally(() => {
+              setAdmin(false);
+              onClose();
+            });
           }}
           className="start-menu-action"
           style={{
