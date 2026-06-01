@@ -32,6 +32,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
+  if (
+    typeof body.email !== "string" ||
+    typeof body.password !== "string" ||
+    body.email.includes("\0") ||
+    body.password.includes("\0")
+  ) {
+    return NextResponse.json({ error: "Invalid credentials" }, { status: 400 });
+  }
+
   if (!body.email || !body.password) {
     return NextResponse.json({ error: "Missing credentials" }, { status: 400 });
   }

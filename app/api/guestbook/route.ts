@@ -31,13 +31,21 @@ export async function GET(req: NextRequest) {
   }
 }
 
+function stripHtml(s: string): string {
+  return s.replace(/<[^>]*>/g, "");
+}
+
 export async function POST(req: NextRequest) {
   const body = await parseBody<{ name?: string; message?: string }>(req);
   if (!body)
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
 
-  const name = String(body.name ?? "").trim();
-  const message = String(body.message ?? "").trim();
+  if (typeof body.name !== "string" || typeof body.message !== "string") {
+    return NextResponse.json({ error: "Invalid input" }, { status: 400 });
+  }
+
+  const name = stripHtml(body.name).trim();
+  const message = stripHtml(body.message).trim();
 
   if (!name || !message) {
     return NextResponse.json(
