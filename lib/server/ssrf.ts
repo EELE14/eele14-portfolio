@@ -1,21 +1,7 @@
 /* Copyright (c) 2026 eele14. All Rights Reserved. */
 import type { IncomingMessage } from "http";
 
-function ipv4ToInt(ip: string): number | null {
-  const parts = ip.split(".");
-  if (parts.length !== 4) return null;
-  let n = 0;
-  for (const p of parts) {
-    const v = parseInt(p, 10);
-    if (isNaN(v) || v < 0 || v > 255) return null;
-    n = (n << 8) | v;
-  }
-  return n >>> 0;
-}
-
-function isPrivateIpv4(ip: string): boolean {
-  const n = ipv4ToInt(ip);
-  if (n === null) return true;
+function isPrivateIpv4Num(n: number): boolean {
   return (
     (n & 0xff000000) === 0x00000000 || // 0/8
     (n & 0xff000000) === 0x0a000000 || // 10/8
@@ -28,11 +14,30 @@ function isPrivateIpv4(ip: string): boolean {
   );
 }
 
+function isPrivateIpv4(ip: string): boolean {
+  const parts = ip.split(".");
+  if (parts.length !== 4) return true;
+  let n = 0;
+  for (const p of parts) {
+    const v = parseInt(p, 10);
+    if (isNaN(v) || v < 0 || v > 255) return true;
+    n = (n << 8) | v;
+  }
+  return isPrivateIpv4Num(n >>> 0);
+}
+
 function isPrivateIp(ip: string): boolean {
   const addr = ip.startsWith("[") ? ip.slice(1, ip.lastIndexOf("]")) : ip;
 
-  const mapped = addr.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/i);
-  if (mapped) return isPrivateIpv4(mapped[1]);
+  const mappedDotted = addr.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/i);
+  if (mappedDotted) return isPrivateIpv4(mappedDotted[1]);
+
+  const mappedHex = addr.match(/^::ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/i);
+  if (mappedHex) {
+    const n =
+      ((parseInt(mappedHex[1], 16) << 16) | parseInt(mappedHex[2], 16)) >>> 0;
+    return isPrivateIpv4Num(n);
+  }
 
   if (/^\d+\.\d+\.\d+\.\d+$/.test(addr)) return isPrivateIpv4(addr);
 
