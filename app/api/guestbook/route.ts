@@ -31,8 +31,8 @@ export async function GET(req: NextRequest) {
   }
 }
 
-function stripHtml(s: string): string {
-  return s.replace(/<[^>]*>/g, "");
+function sanitize(s: string): string {
+  return s.replace(/<[^>]*>/g, "").replace(/\0/g, "");
 }
 
 export async function POST(req: NextRequest) {
@@ -44,8 +44,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   }
 
-  const name = stripHtml(body.name).trim();
-  const message = stripHtml(body.message).trim();
+  const name = sanitize(body.name).trim();
+  const message = sanitize(body.message).trim();
 
   if (!name || !message) {
     return NextResponse.json(
