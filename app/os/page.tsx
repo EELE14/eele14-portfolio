@@ -1,7 +1,12 @@
 /* Copyright (c) 2026 eele14. All Rights Reserved. */
-import SceneLoader from "@/components/scene/SceneLoader";
+import type { Metadata } from "next";
+import Desktop from "@/components/desktop/Desktop";
 
-export default function Home() {
+export const metadata: Metadata = {
+  robots: { index: false },
+};
+
+export default function OsPage() {
   return (
     <>
       <div className="mobile-guard">
@@ -17,7 +22,7 @@ export default function Home() {
         />
       </div>
 
-      <SceneLoader />
+      <Desktop />
     </>
   );
 }

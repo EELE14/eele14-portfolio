@@ -27,7 +27,7 @@ export default function Terminal() {
   const [busy, setBusy] = useState(false);
   const [cwd, setCwd] = useState<string[]>([]);
 
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const user = isAdmin ? "root" : "guest";
@@ -44,7 +44,8 @@ export default function Terminal() {
   }, [isAdmin]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const el = scrollRef.current;
+    if (el) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
   }, [lines]);
 
   async function submit(e: React.FormEvent) {
@@ -153,6 +154,7 @@ export default function Terminal() {
       aria-label="Terminal emulator"
     >
       <div
+        ref={scrollRef}
         style={{
           flex: 1,
           overflow: "auto",
@@ -180,7 +182,6 @@ export default function Terminal() {
             {line.text || " "}
           </div>
         ))}
-        <div ref={bottomRef} />
       </div>
 
       <form

@@ -24,6 +24,7 @@ Thumbs.db
 .idea/
 CLAUDE.md
 .claude/
+/docs
 
 # Logs
 *.log

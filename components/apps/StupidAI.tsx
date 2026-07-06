@@ -87,11 +87,12 @@ export default function StupidAI() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const el = scrollRef.current;
+    if (el) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
   async function sendMessage() {
@@ -201,6 +202,7 @@ export default function StupidAI() {
     >
       {/* Message list */}
       <div
+        ref={scrollRef}
         style={{
           flex: 1,
           overflowY: "auto",
@@ -229,7 +231,6 @@ export default function StupidAI() {
         {messages.map((msg) => (
           <MessageBubble key={msg.id} msg={msg} />
         ))}
-        <div ref={bottomRef} />
       </div>
 
       {/* Input row */}

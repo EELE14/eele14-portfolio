@@ -45,6 +45,8 @@ const ICON_DEFAULT_POSITIONS: Record<string, { x: number; y: number }> = {
 
 type Pos = { x: number; y: number };
 
+const ICON_SIZE = { w: 80, h: 90 };
+
 function savePositions(positions: Record<string, Pos>) {
   fetch("/api/desktop/positions", {
     method: "PUT",
@@ -146,6 +148,32 @@ export default function Desktop() {
   const desktopRef = useRef<HTMLDivElement | null>(null);
   const [iconPositions, setIconPositions] = useState<Record<string, Pos>>(
     ICON_DEFAULT_POSITIONS,
+  );
+
+  const [desktopSize, setDesktopSize] = useState<{
+    w: number;
+    h: number;
+  } | null>(null);
+
+  useEffect(() => {
+    const el = desktopRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(() =>
+      setDesktopSize({ w: el.clientWidth, h: el.clientHeight }),
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const clampIconPos = useCallback(
+    (pos: Pos): Pos =>
+      desktopSize
+        ? {
+            x: Math.max(0, Math.min(pos.x, desktopSize.w - ICON_SIZE.w)),
+            y: Math.max(0, Math.min(pos.y, desktopSize.h - ICON_SIZE.h)),
+          }
+        : pos,
+    [desktopSize],
   );
   const positionsRef = useRef<Record<string, Pos>>(ICON_DEFAULT_POSITIONS);
   const debounceTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>(
@@ -454,10 +482,10 @@ export default function Desktop() {
               id={app.id}
               label={renamedIcons[app.id] ?? app.title}
               icon={app.icon}
-              defaultPosition={
+              defaultPosition={clampIconPos(
                 iconPositions[app.id] ??
-                ICON_DEFAULT_POSITIONS[app.id] ?? { x: 16, y: 16 }
-              }
+                  ICON_DEFAULT_POSITIONS[app.id] ?? { x: 16, y: 16 },
+              )}
               description={app.description}
               type="Application"
               isAdmin={isAdmin}
@@ -475,9 +503,9 @@ export default function Desktop() {
               id="recycle_bin"
               label={renamedIcons["recycle_bin"] ?? RECYCLE_BIN.title}
               icon={RECYCLE_BIN.icon}
-              defaultPosition={
-                iconPositions.recycle_bin ?? ICON_DEFAULT_POSITIONS.recycle_bin
-              }
+              defaultPosition={clampIconPos(
+                iconPositions.recycle_bin ?? ICON_DEFAULT_POSITIONS.recycle_bin,
+              )}
               isAdmin={isAdmin}
               onOpen={() => {}}
               onPositionChange={handlePositionChange}
@@ -492,10 +520,9 @@ export default function Desktop() {
             .map((p, idx) => {
               const iconId = `repo:${p.slug}`;
               const [repoOwner, repoName] = p.githubRepo.split("/");
-              const defaultPos = iconPositions[iconId] ?? {
-                x: 96,
-                y: idx * 96,
-              };
+              const defaultPos = clampIconPos(
+                iconPositions[iconId] ?? { x: 96, y: idx * 96 },
+              );
               return (
                 <DesktopIcon
                   key={iconId}
@@ -611,9 +638,9 @@ export default function Desktop() {
                       </svg>
                     )
                   }
-                  defaultPosition={
-                    iconPositions[iconId] ?? { x: 192, y: idx * 96 }
-                  }
+                  defaultPosition={clampIconPos(
+                    iconPositions[iconId] ?? { x: 192, y: idx * 96 },
+                  )}
                   isAdmin={isAdmin}
                   type={node.type === "folder" ? "Folder" : "File"}
                   onOpen={() =>

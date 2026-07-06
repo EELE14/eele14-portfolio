@@ -128,6 +128,30 @@ function cascadeOffset(windows: WindowState[]): number {
   return (windows.filter((w) => w.isOpen).length % 8) * 24;
 }
 
+const TASKBAR_HEIGHT = 36;
+
+// Keep every window fully inside the viewport. Persisted geometry can come
+// from a larger viewport (the desktop also runs in a 1280x714 iframe on /), and
+// windows sticking out of the desktop break the 3D scenes CSS3D compositing.
+function clampToViewport(w: WindowState): WindowState {
+  if (typeof window === "undefined") return w;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight - TASKBAR_HEIGHT;
+  const width = Math.min(w.size.width, vw);
+  const height = Math.min(w.size.height, vh);
+  const x = Math.min(Math.max(0, w.position.x), Math.max(0, vw - width));
+  const y = Math.min(Math.max(0, w.position.y), Math.max(0, vh - height));
+  if (
+    width === w.size.width &&
+    height === w.size.height &&
+    x === w.position.x &&
+    y === w.position.y
+  ) {
+    return w;
+  }
+  return { ...w, position: { x, y }, size: { width, height } };
+}
+
 type SetFn = (fn: (s: DesktopStore) => Partial<DesktopStore>) => void;
 type GetFn = () => DesktopStore;
 
@@ -166,7 +190,7 @@ function pushWindow(get: GetFn, set: SetFn, opts: PushOptions): void {
     zCounter: s.zCounter + 1,
     windows: [
       ...s.windows,
-      {
+      clampToViewport({
         id: generateId(),
         appId: opts.appId,
         title: opts.title,
@@ -177,7 +201,7 @@ function pushWindow(get: GetFn, set: SetFn, opts: PushOptions): void {
         position: { x: 80 + offset, y: 60 + offset },
         size: opts.size,
         meta: opts.meta,
-      },
+      }),
     ],
   }));
 }
@@ -377,6 +401,14 @@ export const useDesktopStore = create<DesktopStore>()(
         renamedIcons: state.renamedIcons,
         hiddenIcons: state.hiddenIcons,
       }),
+      merge: (persisted, current) => {
+        const stored = (persisted ?? {}) as Partial<DesktopStore>;
+        const merged = { ...current, ...stored };
+        return {
+          ...merged,
+          windows: (merged.windows ?? []).map(clampToViewport),
+        };
+      },
     },
   ),
 );
