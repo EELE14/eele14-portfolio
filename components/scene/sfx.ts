@@ -136,6 +136,30 @@ export function sfxDrawer(open: boolean) {
   }
 }
 
+// rapid tick-tock while the wall clock spins through a whole day; the ticks
+// thin out at both ends to follow the eased time-lapse
+export function sfxClockSpin(seconds: number) {
+  const c = ac();
+  if (!c) return;
+  const start = c.currentTime + 0.05;
+  const spacing = 0.14;
+  const count = Math.floor(seconds / spacing);
+  for (let i = 0; i < count; i++) {
+    const edge = Math.max(
+      0.1,
+      Math.min(1, Math.min(i, count - 1 - i) / (count * 0.15)),
+    );
+    const at = start + i * spacing;
+    const tick = noise(c, 0.012);
+    const band = c.createBiquadFilter();
+    band.type = "bandpass";
+    band.frequency.value = i % 2 ? 2100 : 2700;
+    band.Q.value = 6;
+    tick.connect(band).connect(out(c, at, 0.05 * edge, 0.03, 0.001));
+    tick.start(at);
+  }
+}
+
 // the classic square-wave blips
 export function sfxPong(kind: "paddle" | "wall" | "score") {
   const c = ac();

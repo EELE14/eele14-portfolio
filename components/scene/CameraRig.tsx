@@ -6,6 +6,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { Vector3, type Camera } from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import type { PoiRegistry } from "./Poi";
+import { easeInOutCubic } from "./easing";
 import {
   CAMERA_LIMITS,
   MAX_FRAME_DELTA,
@@ -23,10 +24,6 @@ interface CameraRigProps {
 }
 
 const FLIGHT_DURATION = 1.1; // seconds
-
-function easeInOutCubic(t: number): number {
-  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-}
 
 const EXTRA_FRAMES = 4;
 

@@ -22,6 +22,7 @@ export interface RoomApi {
   toggleMusic: () => void;
   openPaper: (side: PaperSide) => void;
   unlockEgg: (id: EggId) => void;
+  startTimeLapse: () => void;
   eggsFound: number;
   eggsTotal: number;
 }

@@ -9,6 +9,7 @@ import { hoverCursor, Poi, usePoi } from "./Poi";
 import { useRoom, type PaperSide } from "./RoomContext";
 import { createCanvasTexture } from "./textures";
 import { sfxDrawer } from "./sfx";
+import { easeInOutQuad } from "./easing";
 import { MAX_FRAME_DELTA } from "./constants";
 
 const DRAWER_BASE_Z = -0.164;
@@ -18,10 +19,6 @@ const DRAWER_NAMES: Record<PaperSide, string> = {
   left: "drawerLeft",
   right: "drawerRight",
 };
-
-function ease(t: number): number {
-  return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-}
 
 function drawPaper(ctx: CanvasRenderingContext2D, side: PaperSide) {
   ctx.fillStyle = "#f7f3ea";
@@ -111,7 +108,7 @@ export default function Nightstand() {
       Math.sign(target - progress.current) *
       (Math.min(delta, MAX_FRAME_DELTA) / OPEN_SECONDS);
     progress.current = Math.min(1, Math.max(0, progress.current));
-    const z = DRAWER_BASE_Z + ease(progress.current) * OPEN_DISTANCE;
+    const z = DRAWER_BASE_Z + easeInOutQuad(progress.current) * OPEN_DISTANCE;
     for (const name of Object.values(DRAWER_NAMES)) {
       const drawer = root.getObjectByName(name);
       if (drawer) drawer.position.z = z;

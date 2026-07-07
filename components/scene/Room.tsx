@@ -2,6 +2,8 @@
 "use client";
 
 import { useMemo } from "react";
+import { hoverCursor } from "./Poi";
+import { useRoom } from "./RoomContext";
 import { ROOM_BOUNDS } from "./constants";
 import { skyColorForHour } from "./lighting";
 
@@ -105,10 +107,18 @@ function Window({ hour }: { hour: number }) {
 }
 
 function WallClock({ hour }: { hour: number }) {
+  const { startTimeLapse } = useRoom();
   const hourAngle = -((hour % 12) / 12) * Math.PI * 2;
   const minuteAngle = -((hour % 1) * Math.PI * 2);
   return (
-    <group position={[-0.075, 1.08, minZ + 0.035]}>
+    <group
+      position={[-0.075, 1.08, minZ + 0.035]}
+      onClick={(e) => {
+        e.stopPropagation();
+        startTimeLapse();
+      }}
+      {...hoverCursor(true)}
+    >
       <mesh rotation={[Math.PI / 2, 0, 0]}>
         <cylinderGeometry args={[0.13, 0.13, 0.025, 24]} />
         <meshStandardMaterial color="#1a1a1a" />

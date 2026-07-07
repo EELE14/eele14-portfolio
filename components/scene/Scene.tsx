@@ -20,7 +20,8 @@ import PaperOverlay from "./PaperOverlay";
 import { PoiContext, type PoiRegistry } from "./Poi";
 import { RoomContext } from "./RoomContext";
 import { useRoomState } from "./useRoomState";
-import { preloadSfx } from "./sfx";
+import { preloadSfx, sfxClockSpin } from "./sfx";
+import { easeInOutCubic } from "./easing";
 import { currentLocalHour, formatHour } from "./lighting";
 import {
   CAMERA_FOV,
@@ -31,6 +32,7 @@ import {
 
 const POI_KEY = "eele14-desk-poi";
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+const TIME_LAPSE_SECONDS = 20;
 
 function useReducedMotion() {
   return useSyncExternalStore(
@@ -68,7 +70,31 @@ export default function Scene() {
   const registry = useRef<PoiRegistry>(new Map());
 
   const [orbitEnabled, setOrbitEnabled] = useState(false);
-  const { roomApi, paper, closePaper } = useRoomState(hour);
+  const lapsing = useRef(false);
+
+  const startTimeLapse = useCallback(() => {
+    if (lapsing.current) return;
+    lapsing.current = true;
+    sfxClockSpin(TIME_LAPSE_SECONDS);
+    const startHour = hour;
+    const startTime = performance.now();
+    const step = () => {
+      const t = Math.min(
+        1,
+        (performance.now() - startTime) / (TIME_LAPSE_SECONDS * 1000),
+      );
+      setHour((startHour + 24 * easeInOutCubic(t)) % 24);
+      if (t < 1) {
+        requestAnimationFrame(step);
+        return;
+      }
+      lapsing.current = false;
+      setHour(debug ? startHour : currentLocalHour());
+    };
+    requestAnimationFrame(step);
+  }, [hour, debug]);
+
+  const { roomApi, paper, closePaper } = useRoomState(hour, startTimeLapse);
 
   useEffect(() => {
     preloadSfx();
@@ -76,7 +102,9 @@ export default function Scene() {
 
   useEffect(() => {
     if (debug) return;
-    const timer = setInterval(() => setHour(currentLocalHour()), 30_000);
+    const timer = setInterval(() => {
+      if (!lapsing.current) setHour(currentLocalHour());
+    }, 30_000);
     return () => clearInterval(timer);
   }, [debug]);
 
@@ -149,9 +177,7 @@ export default function Scene() {
 
       <LoadingOverlay />
 
-      {paper && (
-        <PaperOverlay key={paper} side={paper} onClose={closePaper} />
-      )}
+      {paper && <PaperOverlay key={paper} side={paper} onClose={closePaper} />}
 
       {activePoi ? (
         <button

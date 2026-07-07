@@ -25,7 +25,10 @@ function storedEggs(): string[] {
   }
 }
 
-export function useRoomState(hour: number): {
+export function useRoomState(
+  hour: number,
+  startTimeLapse: () => void,
+): {
   roomApi: RoomApi;
   paper: PaperSide | null;
   closePaper: () => void;
@@ -112,6 +115,7 @@ export function useRoomState(hour: number): {
       toggleMusic,
       openPaper,
       unlockEgg,
+      startTimeLapse,
       eggsFound: eggs.length,
       eggsTotal: EGG_IDS.length,
     }),
@@ -124,6 +128,7 @@ export function useRoomState(hour: number): {
       toggleMusic,
       openPaper,
       unlockEgg,
+      startTimeLapse,
       eggs,
     ],
   );
