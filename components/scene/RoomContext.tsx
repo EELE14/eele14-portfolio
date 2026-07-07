@@ -9,6 +9,7 @@ export const EGG_IDS = [
   "note-left",
   "note-right",
   "tv-zapper",
+  "trickshot",
 ] as const;
 
 export type EggId = (typeof EGG_IDS)[number];
@@ -23,6 +24,9 @@ export interface RoomApi {
   openPaper: (side: PaperSide) => void;
   unlockEgg: (id: EggId) => void;
   startTimeLapse: () => void;
+  raining: boolean;
+  celebrating: boolean;
+  toggleParty: () => void;
   eggsFound: number;
   eggsTotal: number;
 }

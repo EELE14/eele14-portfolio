@@ -385,7 +385,8 @@ body {
   color: var(--color-muted);
 }
 
-.scene-time-slider {
+.scene-time-slider,
+.scene-rain-toggle {
   position: fixed;
   bottom: 16px;
   right: 16px;
@@ -400,6 +401,10 @@ body {
   color: var(--color-ink);
   border: 2px solid var(--color-ink);
   box-shadow: 3px 3px 0px var(--color-ink);
+}
+
+.scene-rain-toggle {
+  bottom: 62px;
 }
 
 .scene-time-slider input {

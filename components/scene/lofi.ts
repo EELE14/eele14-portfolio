@@ -62,19 +62,37 @@ function startCrackle() {
   source.start();
 }
 
-export function startLofi() {
+function playHat(at: number) {
+  if (!ctx || !master) return;
+  const seconds = 0.05;
+  const buffer = ctx.createBuffer(1, ctx.sampleRate * seconds, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+  const src = ctx.createBufferSource();
+  src.buffer = buffer;
+  const filter = ctx.createBiquadFilter();
+  filter.type = "highpass";
+  filter.frequency.value = 6000;
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.05, at);
+  gain.gain.exponentialRampToValueAtTime(0.001, at + seconds);
+  src.connect(filter).connect(gain).connect(master);
+  src.start(at);
+}
+
+export function startLofi(party = false) {
   stopLofi();
   ctx = new AudioContext();
   master = ctx.createGain();
   master.gain.value = 0.5;
   const lowpass = ctx.createBiquadFilter();
   lowpass.type = "lowpass";
-  lowpass.frequency.value = 2600;
+  lowpass.frequency.value = party ? 3600 : 2600;
   master.connect(lowpass).connect(ctx.destination);
 
   startCrackle();
 
-  const BAR = 3.2; // seconds per chord
+  const BAR = party ? 2.2 : 3.2; // seconds per chord
   let step = 0;
   const scheduleBar = () => {
     if (!ctx) return;
@@ -82,6 +100,10 @@ export function startLofi() {
     playChord(CHORDS[step % CHORDS.length], at, BAR + 0.4);
     playKick(at);
     playKick(at + BAR / 2);
+    if (party) {
+      playHat(at + BAR / 4);
+      playHat(at + (BAR * 3) / 4);
+    }
     step++;
   };
   scheduleBar();

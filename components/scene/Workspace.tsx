@@ -8,6 +8,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import KenneyModel from "./KenneyModel";
 import Room from "./Room";
 import Nightstand from "./Nightstand";
+import PaperToss from "./PaperToss";
 import StickyNote from "./StickyNote";
 import Television from "./Television";
 import { hoverCursor, Poi, usePoi } from "./Poi";
@@ -194,7 +195,7 @@ export default function Workspace({ screenAnchor }: WorkspaceProps) {
         rotation={[0, Math.PI + 0.45, 0]}
       />
       <KenneyModel model="rugRounded" position={[-0.45, 0.001, 1.15]} />
-      <KenneyModel model="trashcan" position={[0.55, 0, 0.02]} scale={0.85} />
+      <PaperToss />
 
       {/* bookcase shelves sit at local y 0.13 / 0.37 / 0.61 / 0.85 */}
       <KenneyModel model="bookcaseOpen" position={[1.0, 0, -0.23]} />

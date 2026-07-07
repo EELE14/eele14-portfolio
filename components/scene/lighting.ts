@@ -70,7 +70,7 @@ const KEYFRAMES: Keyframe[] = [
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
-function segmentAt<T extends { hour: number }>(
+export function segmentAt<T extends { hour: number }>(
   frames: T[],
   hour: number,
 ): [T, T, number] {

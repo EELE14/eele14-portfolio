@@ -1,11 +1,10 @@
 /* Copyright (c) 2026 eele14. All Rights Reserved. */
 "use client";
 
-import { useMemo } from "react";
+import Outside, { WINDOW_OPENING } from "./Outside";
 import { hoverCursor } from "./Poi";
 import { useRoom } from "./RoomContext";
 import { ROOM_BOUNDS } from "./constants";
-import { skyColorForHour } from "./lighting";
 
 const WALL_HEIGHT = 2.4;
 const SKIRTING = { height: 0.06, depth: 0.018 };
@@ -29,6 +28,7 @@ const WALLS: Array<{
   rotationY: number;
   length: number;
   color: string;
+  opening?: boolean;
 }> = [
   {
     position: [centerX, 0, minZ],
@@ -53,8 +53,41 @@ const WALLS: Array<{
     rotationY: -Math.PI / 2,
     length: depth,
     color: COLORS.sides,
+    opening: true,
   },
 ];
+
+function WallWithOpening({ length, color }: { length: number; color: string }) {
+  const { x: cx, y: cy, w, h } = WINDOW_OPENING;
+  const left = {
+    w: cx - w / 2 + length / 2,
+    x: (-length / 2 + cx - w / 2) / 2,
+  };
+  const right = {
+    w: length / 2 - (cx + w / 2),
+    x: (cx + w / 2 + length / 2) / 2,
+  };
+  return (
+    <>
+      <mesh position={[left.x, WALL_HEIGHT / 2, 0]} receiveShadow>
+        <planeGeometry args={[left.w, WALL_HEIGHT]} />
+        <meshStandardMaterial color={color} />
+      </mesh>
+      <mesh position={[right.x, WALL_HEIGHT / 2, 0]} receiveShadow>
+        <planeGeometry args={[right.w, WALL_HEIGHT]} />
+        <meshStandardMaterial color={color} />
+      </mesh>
+      <mesh position={[cx, (cy - h / 2) / 2, 0]} receiveShadow>
+        <planeGeometry args={[w, cy - h / 2]} />
+        <meshStandardMaterial color={color} />
+      </mesh>
+      <mesh position={[cx, (cy + h / 2 + WALL_HEIGHT) / 2, 0]} receiveShadow>
+        <planeGeometry args={[w, WALL_HEIGHT - (cy + h / 2)]} />
+        <meshStandardMaterial color={color} />
+      </mesh>
+    </>
+  );
+}
 
 function Poster({
   position,
@@ -79,20 +112,27 @@ function Poster({
   );
 }
 
-function Window({ hour }: { hour: number }) {
-  const sky = useMemo(() => skyColorForHour(hour), [hour]);
+function Window() {
   const W = 0.85;
   const H = 0.6;
   const FRAME = 0.06;
+  const border = [
+    { pos: [0, H / 2 + FRAME / 4, 0], size: [W + FRAME, FRAME / 2] },
+    { pos: [0, -H / 2 - FRAME / 4, 0], size: [W + FRAME, FRAME / 2] },
+    { pos: [-W / 2 - FRAME / 4, 0, 0], size: [FRAME / 2, H] },
+    { pos: [W / 2 + FRAME / 4, 0, 0], size: [FRAME / 2, H] },
+  ] as const;
   return (
     <group position={[maxX - 0.015, 1.05, 3.0]} rotation={[0, -Math.PI / 2, 0]}>
-      <mesh>
-        <boxGeometry args={[W + FRAME, H + FRAME, 0.02]} />
-        <meshStandardMaterial color="#f5f0e8" />
-      </mesh>
+      {border.map((part, i) => (
+        <mesh key={i} position={[part.pos[0], part.pos[1], 0]}>
+          <boxGeometry args={[part.size[0], part.size[1], 0.02]} />
+          <meshStandardMaterial color="#f5f0e8" />
+        </mesh>
+      ))}
       <mesh position={[0, 0, 0.012]}>
         <planeGeometry args={[W, H]} />
-        <meshBasicMaterial color={sky} />
+        <meshBasicMaterial color="#ffffff" transparent opacity={0.06} />
       </mesh>
       <mesh position={[0, 0, 0.016]}>
         <boxGeometry args={[0.03, H, 0.006]} />
@@ -174,10 +214,14 @@ export default function Room({ hour }: { hour: number }) {
           position={wall.position}
           rotation={[0, wall.rotationY, 0]}
         >
-          <mesh position={[0, WALL_HEIGHT / 2, 0]} receiveShadow>
-            <planeGeometry args={[wall.length, WALL_HEIGHT]} />
-            <meshStandardMaterial color={wall.color} />
-          </mesh>
+          {wall.opening ? (
+            <WallWithOpening length={wall.length} color={wall.color} />
+          ) : (
+            <mesh position={[0, WALL_HEIGHT / 2, 0]} receiveShadow>
+              <planeGeometry args={[wall.length, WALL_HEIGHT]} />
+              <meshStandardMaterial color={wall.color} />
+            </mesh>
+          )}
           <mesh
             position={[0, SKIRTING.height / 2, SKIRTING.depth / 2]}
             receiveShadow
@@ -201,7 +245,8 @@ export default function Room({ hour }: { hour: number }) {
         color="#27ae8f"
       />
 
-      <Window hour={hour} />
+      <Outside hour={hour} />
+      <Window />
       <WallClock hour={hour} />
     </group>
   );

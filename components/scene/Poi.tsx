@@ -34,7 +34,7 @@ export type PoiRegistry = Map<string, PoiEntry>;
 
 interface PoiApi {
   activePoi: string | null;
-  openPoi: (id: string) => void;
+  openPoi: (id: string | null) => void;
   registry: RefObject<PoiRegistry>;
 }
 

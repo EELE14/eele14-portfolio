@@ -10,7 +10,7 @@ import {
 } from "./RoomContext";
 import { startLofi, stopLofi } from "./lofi";
 import { lightingForHour } from "./lighting";
-import { sfxLampFlicker, sfxPaper, sfxSwitch } from "./sfx";
+import { sfxLampFlicker, sfxPaper, sfxParty, sfxSwitch } from "./sfx";
 
 const EGGS_KEY = "eele14-eggs";
 const FLICKER_PATTERN = [0, 1, 0, 0.35, 0, 1, 0.15, 1];
@@ -28,6 +28,7 @@ function storedEggs(): string[] {
 export function useRoomState(
   hour: number,
   startTimeLapse: () => void,
+  raining: boolean,
 ): {
   roomApi: RoomApi;
   paper: PaperSide | null;
@@ -38,6 +39,7 @@ export function useRoomState(
   const lampClicks = useRef<number[]>([]);
   const flickering = useRef(false);
   const [musicOn, setMusicOn] = useState(false);
+  const [celebrating, setCelebrating] = useState(false);
   const [paper, setPaper] = useState<PaperSide | null>(null);
   const [eggs, setEggs] = useState<string[]>(storedEggs);
 
@@ -82,13 +84,28 @@ export function useRoomState(
 
   const toggleMusic = useCallback(() => {
     sfxSwitch(!musicOn);
-    if (musicOn) stopLofi();
-    else {
+    if (musicOn) {
+      stopLofi();
+      setCelebrating(false);
+    } else {
       startLofi();
       unlockEgg("radio-dj");
     }
     setMusicOn(!musicOn);
   }, [musicOn, unlockEgg]);
+
+  const toggleParty = useCallback(() => {
+    if (celebrating) {
+      stopLofi();
+      setMusicOn(false);
+      setCelebrating(false);
+      return;
+    }
+    sfxParty();
+    startLofi(true);
+    setMusicOn(true);
+    setCelebrating(true);
+  }, [celebrating]);
 
   useEffect(() => stopLofi, []);
 
@@ -116,6 +133,9 @@ export function useRoomState(
       openPaper,
       unlockEgg,
       startTimeLapse,
+      raining,
+      celebrating,
+      toggleParty,
       eggsFound: eggs.length,
       eggsTotal: EGG_IDS.length,
     }),
@@ -129,6 +149,9 @@ export function useRoomState(
       openPaper,
       unlockEgg,
       startTimeLapse,
+      raining,
+      celebrating,
+      toggleParty,
       eggs,
     ],
   );

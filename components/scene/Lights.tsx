@@ -8,10 +8,11 @@ import { lightingForHour } from "./lighting";
 import { useRoom } from "./RoomContext";
 
 export default function Lights() {
-  const { hour, lampGlow, musicOn } = useRoom();
+  const { hour, lampGlow, musicOn, celebrating } = useRoom();
   const s = useMemo(() => lightingForHour(hour), [hour]);
   const invalidate = useThree((state) => state.invalidate);
   const lampRef = useRef<PointLight>(null);
+  const discoRef = useRef<PointLight>(null);
 
   const shadowsDirty = useRef(true);
 
@@ -29,12 +30,28 @@ export default function Lights() {
       state.gl.shadowMap.needsUpdate = true;
       shadowsDirty.current = false;
     }
+    const t = state.clock.elapsedTime;
+
+    const disco = discoRef.current;
+    if (disco) {
+      if (celebrating) {
+        disco.color.setHSL((t * 0.22) % 1, 0.85, 0.55);
+        const base = 7 + 4 * s.sunIntensity;
+        disco.intensity =
+          base * (0.65 + 0.35 * Math.sin(t * Math.PI * 2 * 0.91));
+        state.gl.shadowMap.needsUpdate = true;
+        invalidate();
+      } else if (disco.intensity !== 0) {
+        disco.intensity = 0;
+        shadowsDirty.current = true;
+        invalidate();
+      }
+    }
+
     const lamp = lampRef.current;
     if (!lamp || !musicOn) return;
     lamp.intensity =
-      lampGlow *
-      3 *
-      (1 + 0.07 * Math.sin(state.clock.elapsedTime * Math.PI * 2 * 2.2));
+      lampGlow * 3 * (1 + 0.07 * Math.sin(t * Math.PI * 2 * 2.2));
     invalidate();
   });
 
@@ -66,6 +83,18 @@ export default function Lights() {
         shadow-mapSize={[1024, 1024]}
         shadow-camera-near={0.3}
         shadow-camera-far={12}
+        shadow-normalBias={0.05}
+      />
+      <pointLight
+        ref={discoRef}
+        position={[2.5, 11, 7.5]}
+        intensity={0}
+        distance={22}
+        decay={1.1}
+        castShadow
+        shadow-mapSize={[1024, 1024]}
+        shadow-camera-near={0.5}
+        shadow-camera-far={24}
         shadow-normalBias={0.05}
       />
     </>

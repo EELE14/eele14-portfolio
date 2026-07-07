@@ -20,6 +20,13 @@ import PaperOverlay from "./PaperOverlay";
 import { PoiContext, type PoiRegistry } from "./Poi";
 import { RoomContext } from "./RoomContext";
 import { useRoomState } from "./useRoomState";
+import {
+  setAmbienceDucked,
+  setAmbienceHour,
+  setAmbienceRain,
+  startAmbience,
+  stopAmbience,
+} from "./ambience";
 import { preloadSfx, sfxClockSpin } from "./sfx";
 import { easeInOutCubic } from "./easing";
 import { currentLocalHour, formatHour } from "./lighting";
@@ -33,6 +40,7 @@ import {
 const POI_KEY = "eele14-desk-poi";
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 const TIME_LAPSE_SECONDS = 20;
+const RAINING_TODAY = typeof window !== "undefined" && Math.random() < 0.15;
 
 function useReducedMotion() {
   return useSyncExternalStore(
@@ -94,11 +102,39 @@ export default function Scene() {
     requestAnimationFrame(step);
   }, [hour, debug]);
 
-  const { roomApi, paper, closePaper } = useRoomState(hour, startTimeLapse);
+  const [raining, setRaining] = useState(RAINING_TODAY);
+  const { roomApi, paper, closePaper } = useRoomState(
+    hour,
+    startTimeLapse,
+    raining,
+  );
 
   useEffect(() => {
     preloadSfx();
   }, []);
+
+  useEffect(() => {
+    const begin = () => void startAmbience();
+    window.addEventListener("pointerdown", begin, { once: true });
+    window.addEventListener("keydown", begin, { once: true });
+    return () => {
+      window.removeEventListener("pointerdown", begin);
+      window.removeEventListener("keydown", begin);
+      stopAmbience();
+    };
+  }, []);
+
+  useEffect(() => {
+    setAmbienceHour(hour);
+  }, [hour]);
+
+  useEffect(() => {
+    setAmbienceRain(raining);
+  }, [raining]);
+
+  useEffect(() => {
+    setAmbienceDucked(activePoi === "laptop");
+  }, [activePoi]);
 
   useEffect(() => {
     if (debug) return;
@@ -192,17 +228,27 @@ export default function Scene() {
       )}
 
       {debug && (
-        <label className="scene-time-slider">
-          TIME {formatHour(hour)}
-          <input
-            type="range"
-            min={0}
-            max={24}
-            step={0.25}
-            value={hour}
-            onChange={(e) => setHour(Number(e.target.value))}
-          />
-        </label>
+        <>
+          <label className="scene-time-slider">
+            TIME {formatHour(hour)}
+            <input
+              type="range"
+              min={0}
+              max={24}
+              step={0.25}
+              value={hour}
+              onChange={(e) => setHour(Number(e.target.value))}
+            />
+          </label>
+          <label className="scene-rain-toggle">
+            RAIN
+            <input
+              type="checkbox"
+              checked={raining}
+              onChange={(e) => setRaining(e.target.checked)}
+            />
+          </label>
+        </>
       )}
     </>
   );

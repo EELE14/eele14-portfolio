@@ -6,7 +6,7 @@
 // AudioContext is allowed to start.
 let ctx: AudioContext | null = null;
 
-// thx claude for this
+// thx claude for this procedural sound stuff
 
 function ac(): AudioContext | null {
   if (typeof window === "undefined") return null;
@@ -14,6 +14,9 @@ function ac(): AudioContext | null {
   if (ctx.state === "suspended") void ctx.resume();
   return ctx;
 }
+
+// the ambience loops share this context
+export const audioContext = ac;
 
 // ── samples ─────────────────────────────────────────────────────────
 const SAMPLE_NAMES = [
@@ -134,6 +137,77 @@ export function sfxDrawer(open: boolean) {
     thump.start(at + 0.4);
     thump.stop(at + 0.55);
   }
+}
+
+// paper-toss foley: flick on throw, metallic rim tick, bin thunk, floor taps
+export function sfxToss() {
+  playSample("paper", 0.35, 1.35);
+}
+
+export function sfxRim() {
+  const c = ac();
+  if (!c) return;
+  const at = c.currentTime;
+  const tick = noise(c, 0.03);
+  const band = c.createBiquadFilter();
+  band.type = "bandpass";
+  band.frequency.value = 950;
+  band.Q.value = 9;
+  tick.connect(band).connect(out(c, at, 0.18, 0.09, 0.001));
+  tick.start(at);
+}
+
+export function sfxBinIn() {
+  const c = ac();
+  if (!c) return;
+  const at = c.currentTime;
+  const thunk = c.createOscillator();
+  thunk.type = "sine";
+  thunk.frequency.setValueAtTime(160, at);
+  thunk.frequency.exponentialRampToValueAtTime(70, at + 0.12);
+  thunk.connect(out(c, at, 0.16, 0.16, 0.002));
+  thunk.start(at);
+  thunk.stop(at + 0.2);
+  const rattle = noise(c, 0.08);
+  const lp = c.createBiquadFilter();
+  lp.type = "lowpass";
+  lp.frequency.value = 1400;
+  rattle.connect(lp).connect(out(c, at, 0.07, 0.09, 0.002));
+  rattle.start(at);
+}
+
+export function sfxBounce(strength: number) {
+  const c = ac();
+  if (!c) return;
+  const at = c.currentTime;
+  const tap = noise(c, 0.03);
+  const lp = c.createBiquadFilter();
+  lp.type = "lowpass";
+  lp.frequency.value = 900;
+  tap.connect(lp).connect(out(c, at, 0.08 * strength, 0.06, 0.002));
+  tap.start(at);
+}
+
+// tiny chiptune fanfare for finding all the eggs
+export function sfxParty() {
+  const c = ac();
+  if (!c) return;
+  const at = c.currentTime;
+  const pop = noise(c, 0.05);
+  const hp = c.createBiquadFilter();
+  hp.type = "highpass";
+  hp.frequency.value = 1500;
+  pop.connect(hp).connect(out(c, at, 0.15, 0.08, 0.002));
+  pop.start(at);
+  [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+    const osc = c.createOscillator();
+    osc.type = "square";
+    osc.frequency.value = freq;
+    const t = at + 0.05 + i * 0.09;
+    osc.connect(out(c, t, 0.05, i === 3 ? 0.35 : 0.1, 0.005));
+    osc.start(t);
+    osc.stop(t + 0.4);
+  });
 }
 
 // rapid tick-tock while the wall clock spins through a whole day; the ticks
