@@ -9,7 +9,7 @@ import {
   type RoomApi,
 } from "./RoomContext";
 import { startLofi, stopLofi } from "./lofi";
-import { lightingForHour } from "./lighting";
+import { isDarkHour, lightingForHour } from "./lighting";
 import { sfxLampFlicker, sfxPaper, sfxParty, sfxSwitch } from "./sfx";
 
 const EGGS_KEY = "eele14-eggs";
@@ -34,7 +34,7 @@ export function useRoomState(
   paper: PaperSide | null;
   closePaper: () => void;
 } {
-  const [lampOn, setLampOn] = useState(true);
+  const [lampOn, setLampOn] = useState(() => isDarkHour(hour));
   const [flickerMul, setFlickerMul] = useState(1);
   const lampClicks = useRef<number[]>([]);
   const flickering = useRef(false);
