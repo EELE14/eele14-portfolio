@@ -12,9 +12,11 @@ import {
 } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, useProgress } from "@react-three/drei";
-import type { Group } from "three";
+import { CustomToneMapping, type Group } from "three";
 import CameraRig from "./CameraRig";
 import Lights from "./Lights";
+import SceneEnvironment from "./SceneEnvironment";
+import { installBlendedToneMapping } from "./toneMapping";
 import Workspace from "./Workspace";
 import PaperOverlay from "./PaperOverlay";
 import { PoiContext, type PoiRegistry } from "./Poi";
@@ -29,7 +31,7 @@ import {
 } from "./ambience";
 import { preloadSfx, sfxClockSpin } from "./sfx";
 import { easeInOutCubic } from "./easing";
-import { currentLocalHour, formatHour } from "./lighting";
+import { currentLocalHour, formatHour } from "./clock";
 import {
   CAMERA_FOV,
   CAMERA_LIMITS,
@@ -170,9 +172,12 @@ export default function Scene() {
     <>
       <Canvas
         frameloop="demand"
-        shadows
+        shadows="percentage"
         onCreated={({ gl }) => {
           gl.shadowMap.autoUpdate = false;
+
+          installBlendedToneMapping();
+          gl.toneMapping = CustomToneMapping;
         }}
         gl={{ powerPreference: "high-performance" }}
         dpr={[1, 1.75]}
@@ -187,6 +192,7 @@ export default function Scene() {
         <PoiContext.Provider value={poiApi}>
           <RoomContext.Provider value={roomApi}>
             <Lights />
+            <SceneEnvironment />
             <Suspense fallback={null}>
               <Workspace screenAnchor={screenAnchor} />
             </Suspense>

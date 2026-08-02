@@ -5,6 +5,7 @@ import { useEffect, useRef, type ReactNode, type RefObject } from "react";
 import { Mesh, MeshStandardMaterial, type Group } from "three";
 import { Html } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
+import GroundShadows from "./GroundShadows";
 import KenneyModel from "./KenneyModel";
 import Room from "./Room";
 import Nightstand from "./Nightstand";
@@ -125,10 +126,6 @@ function Radio() {
 }
 
 function LaptopScreen() {
-  // distanceFactor 400 cancels drei's df/400 factor: 1 CSS px = 1 world unit
-  // before group scale. occlude="blending" parks the DOM behind the canvas
-  // (prepend + z-index 0) and punches a depth-tested hole into the scene, so
-  // furniture in front of the screen occludes it correctly.
   return (
     <Html
       transform
@@ -183,6 +180,7 @@ export default function Workspace({ screenAnchor }: WorkspaceProps) {
   return (
     <group scale={SCENE_SCALE}>
       <Room hour={hour} />
+      <GroundShadows />
 
       {/* desk top surface: x -0.367..0.363, z -0.33..0.06, height 0.384 */}
       <KenneyModel model="desk" position={[-0.357, 0, 0.05]} />
