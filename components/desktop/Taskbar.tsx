@@ -263,7 +263,7 @@ function NetworkDialog({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     const t0 = performance.now();
     Promise.all([
-      fetch("https://ipapi.co/json/").then((r) => r.json()) as Promise<{
+      fetch("/api/geo").then((r) => r.json()) as Promise<{
         ip?: string;
         city?: string;
         country_name?: string;
