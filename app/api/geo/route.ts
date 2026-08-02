@@ -8,8 +8,9 @@ const PRIVATE_IP =
   /^(::1|::ffff:127\.|127\.|10\.|192\.168\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.|f[cd])/i;
 
 function clientIp(req: NextRequest): string | null {
-  const forwarded = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
-  const ip = forwarded || req.headers.get("x-real-ip")?.trim();
+  const ip =
+    req.headers.get("cf-connecting-ip")?.trim() ||
+    req.headers.get("x-real-ip")?.trim();
   if (!ip || PRIVATE_IP.test(ip)) return null;
   return ip;
 }
