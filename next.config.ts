@@ -6,7 +6,7 @@ const CSP = [
   "script-src 'self' 'unsafe-inline'",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
-  "connect-src 'self' wss://eele14.dev https://ipapi.co",
+  "connect-src 'self' wss://eele14.dev",
   "worker-src 'self'",
   "frame-src 'self'",
   "media-src 'self'",
@@ -20,6 +20,12 @@ const nextConfig: NextConfig = {
     root: path.resolve(__dirname),
   },
   allowedDevOrigins: ["*.trycloudflare.com"],
+
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "api.cephie.app", pathname: "/img/**" },
+    ],
+  },
   async headers() {
     return [
       {

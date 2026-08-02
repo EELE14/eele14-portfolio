@@ -1,5 +1,5 @@
 /* Copyright (c) 2026 eele14. All Rights Reserved. */
-/* eslint-disable @next/next/no-img-element */
+import Image from "next/image";
 import { btnBase } from "@/components/ui/ToolbarRow";
 
 interface ImageViewerProps {
@@ -35,25 +35,21 @@ export default function ImageViewer({ name, url, onBack }: ImageViewerProps) {
       <div
         style={{
           flex: 1,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
           border: "1px solid var(--color-ink)",
           background: "white",
           overflow: "hidden",
           padding: "8px",
         }}
       >
-        <img
-          src={url}
-          alt={name}
-          style={{
-            maxWidth: "100%",
-            maxHeight: "100%",
-            objectFit: "contain",
-            display: "block",
-          }}
-        />
+        <div style={{ position: "relative", width: "100%", height: "100%" }}>
+          <Image
+            src={url}
+            alt={name}
+            fill
+            sizes="100vw"
+            style={{ objectFit: "contain" }}
+          />
+        </div>
       </div>
     </div>
   );
