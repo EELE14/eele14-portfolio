@@ -1,9 +1,14 @@
 /* Copyright (c) 2026 eele14. All Rights Reserved. */
 import { Color } from "three";
+import { lerp, segmentAt } from "./keyframes";
 
 export interface LightingState {
   ambientColor: Color;
   ambientIntensity: number;
+  hemiSkyColor: Color;
+  hemiBounceColor: Color;
+  hemiIntensity: number;
+  envIntensity: number;
   sunColor: Color;
   sunIntensity: number;
   sunPosition: [number, number, number];
@@ -13,6 +18,8 @@ export interface LightingState {
 interface Keyframe {
   hour: number;
   ambient: [color: string, intensity: number];
+  hemi: [sky: string, bounce: string, intensity: number];
+  env: number;
   sun: [color: string, intensity: number, position: [number, number, number]];
   lamp: number;
 }
@@ -20,69 +27,69 @@ interface Keyframe {
 const KEYFRAMES: Keyframe[] = [
   {
     hour: 0,
-    ambient: ["#46506a", 0.4],
-    sun: ["#6f7fa8", 0.35, [-6, 14, 8]],
+    ambient: ["#414a63", 0.48],
+    hemi: ["#1b2033", "#2b2b38", 0.26],
+    env: 0,
+    sun: ["#5d6a8e", 0.28, [-6, 14, 8]],
     lamp: 3.4,
   },
   {
     hour: 5,
-    ambient: ["#565a72", 0.45],
+    ambient: ["#565a72", 0.32],
+    hemi: ["#2a3358", "#46405a", 0.22],
+    env: 0,
     sun: ["#8a7f98", 0.5, [-13, 6, 9]],
     lamp: 3.0,
   },
   {
     hour: 7.5,
-    ambient: ["#ffe0c4", 0.6],
+    ambient: ["#e8dcc8", 0.2],
+    hemi: ["#7f9bc4", "#e0b083", 0.58],
+    env: 0.18,
     sun: ["#ffb37a", 1.4, [-14, 8, 9]],
-    lamp: 1.4,
+    lamp: 2.2,
   },
   {
     hour: 12,
-    ambient: ["#fff6e8", 0.8],
+    ambient: ["#f2e6d4", 0.18],
+    hemi: ["#a9c9ea", "#dcb488", 0.7],
+    env: 0.3,
     sun: ["#fff2dd", 1.9, [4, 18, 8]],
-    lamp: 0.6,
-  },
-  {
-    hour: 16,
-    ambient: ["#fff0da", 0.75],
-    sun: ["#ffe3b8", 1.7, [10, 13, 7]],
-    lamp: 0.7,
-  },
-  {
-    hour: 19,
-    ambient: ["#f6d3ae", 0.6],
-    sun: ["#ff9e5e", 1.3, [14, 6, 9]],
     lamp: 1.8,
   },
   {
+    hour: 16,
+    ambient: ["#f0e2ce", 0.18],
+    hemi: ["#a5c4e4", "#dfb88e", 0.68],
+    env: 0.28,
+    sun: ["#ffe3b8", 1.7, [10, 13, 7]],
+    lamp: 1.8,
+  },
+  {
+    hour: 19,
+    ambient: ["#ecd8bc", 0.2],
+    hemi: ["#6f86b4", "#e0a878", 0.62],
+    env: 0.18,
+    sun: ["#ff9e5e", 1.3, [14, 6, 9]],
+    lamp: 2.6,
+  },
+  {
     hour: 21.5,
-    ambient: ["#6d6a80", 0.45],
+    ambient: ["#6d6a80", 0.32],
+    hemi: ["#333c60", "#504a64", 0.24],
+    env: 0,
     sun: ["#9a7f9d", 0.55, [12, 8, 8]],
     lamp: 3.0,
   },
   {
     hour: 24,
-    ambient: ["#46506a", 0.4],
-    sun: ["#6f7fa8", 0.35, [-6, 14, 8]],
+    ambient: ["#414a63", 0.48],
+    hemi: ["#1b2033", "#2b2b38", 0.26],
+    env: 0,
+    sun: ["#5d6a8e", 0.28, [-6, 14, 8]],
     lamp: 3.4,
   },
 ];
-
-const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
-
-export function segmentAt<T extends { hour: number }>(
-  frames: T[],
-  hour: number,
-): [T, T, number] {
-  const h = ((hour % 24) + 24) % 24;
-  const next = Math.max(
-    frames.findIndex((k) => k.hour >= h),
-    1,
-  );
-  const a = frames[next - 1];
-  const b = frames[next];
-  return [a, b, b.hour === a.hour ? 0 : (h - a.hour) / (b.hour - a.hour)];
-}
 
 export function lightingForHour(hour: number): LightingState {
   const [a, b, t] = segmentAt(KEYFRAMES, hour);
@@ -90,6 +97,10 @@ export function lightingForHour(hour: number): LightingState {
   return {
     ambientColor: new Color(a.ambient[0]).lerp(new Color(b.ambient[0]), t),
     ambientIntensity: lerp(a.ambient[1], b.ambient[1], t),
+    hemiSkyColor: new Color(a.hemi[0]).lerp(new Color(b.hemi[0]), t),
+    hemiBounceColor: new Color(a.hemi[1]).lerp(new Color(b.hemi[1]), t),
+    hemiIntensity: lerp(a.hemi[2], b.hemi[2], t),
+    envIntensity: lerp(a.env, b.env, t),
     sunColor: new Color(a.sun[0]).lerp(new Color(b.sun[0]), t),
     sunIntensity: lerp(a.sun[1], b.sun[1], t),
     sunPosition: [
@@ -117,13 +128,8 @@ export function skyColorForHour(hour: number): Color {
   return new Color(a.color).lerp(new Color(b.color), t);
 }
 
-export function currentLocalHour(): number {
-  const now = new Date();
-  return now.getHours() + now.getMinutes() / 60;
-}
+const DARK_SUN = 0.8;
 
-export function formatHour(hour: number): string {
-  const h = Math.floor(hour);
-  const m = Math.round((hour - h) * 60);
-  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+export function isDarkHour(hour: number): boolean {
+  return lightingForHour(hour).sunIntensity < DARK_SUN;
 }

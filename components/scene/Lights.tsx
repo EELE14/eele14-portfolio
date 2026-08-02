@@ -58,6 +58,11 @@ export default function Lights() {
   return (
     <>
       <ambientLight color={s.ambientColor} intensity={s.ambientIntensity} />
+      <hemisphereLight
+        color={s.hemiSkyColor}
+        groundColor={s.hemiBounceColor}
+        intensity={s.hemiIntensity}
+      />
       <directionalLight
         position={s.sunPosition}
         color={s.sunColor}
@@ -71,6 +76,7 @@ export default function Lights() {
         shadow-camera-near={1}
         shadow-camera-far={70}
         shadow-normalBias={0.05}
+        shadow-radius={6}
       />
       <pointLight
         ref={lampRef}
@@ -84,6 +90,7 @@ export default function Lights() {
         shadow-camera-near={0.3}
         shadow-camera-far={12}
         shadow-normalBias={0.05}
+        shadow-radius={4}
       />
       <pointLight
         ref={discoRef}

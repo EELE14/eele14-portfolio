@@ -1,27 +1,27 @@
 /* Copyright (c) 2026 eele14. All Rights Reserved. */
 "use client";
 
+import { useMemo } from "react";
 import Outside, { WINDOW_OPENING } from "./Outside";
 import { hoverCursor } from "./Poi";
 import { useRoom } from "./RoomContext";
-import { ROOM_BOUNDS } from "./constants";
+import { ROOM_BOUNDS, ROOM_CENTER, ROOM_SIZE } from "./constants";
+import { createFloorTexture } from "./textures";
 
 const WALL_HEIGHT = 2.4;
 const SKIRTING = { height: 0.06, depth: 0.018 };
 
 const COLORS = {
-  floor: "#c3b394",
+  floor: "#a8845c",
   backFront: "#e8dfcc",
   sides: "#ded4bf",
-  skirting: "#a89a80",
+  skirting: "#7d6242",
   frame: "#1a1a1a",
 };
 
 const { minX, maxX, minZ, maxZ } = ROOM_BOUNDS;
-const width = maxX - minX;
-const depth = maxZ - minZ;
-const centerX = (minX + maxX) / 2;
-const centerZ = (minZ + maxZ) / 2;
+const { width, depth } = ROOM_SIZE;
+const { x: centerX, z: centerZ } = ROOM_CENTER;
 
 const WALLS: Array<{
   position: [number, number, number];
@@ -197,6 +197,8 @@ function WallClock({ hour }: { hour: number }) {
 }
 
 export default function Room({ hour }: { hour: number }) {
+  const floorMap = useMemo(() => createFloorTexture(6), []);
+
   return (
     <group>
       <mesh
@@ -205,7 +207,7 @@ export default function Room({ hour }: { hour: number }) {
         receiveShadow
       >
         <planeGeometry args={[width + 0.2, depth + 0.2]} />
-        <meshStandardMaterial color={COLORS.floor} />
+        <meshStandardMaterial color={COLORS.floor} map={floorMap} />
       </mesh>
 
       {WALLS.map((wall, i) => (
