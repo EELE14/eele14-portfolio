@@ -1,6 +1,6 @@
 /* Copyright (c) 2026 eele14. All Rights Reserved. */
 
-import { segmentAt } from "./lighting";
+import { segmentAt } from "./keyframes";
 import { audioContext } from "./sfx";
 
 const LOOP_START = 0.5;

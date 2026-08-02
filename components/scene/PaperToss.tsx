@@ -164,7 +164,6 @@ function simulateThrow(): ThrowAnim {
 }
 
 function splitLid(root: Group): Group | null {
-  // the glTF scene is cached and shared, so a remount finds it already split
   const existing = root.getObjectByName("lidPivot");
   if (existing) return existing as Group;
   let pivot: Group | null = null;

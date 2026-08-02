@@ -33,6 +33,16 @@ export const ZOOM_DISTANCE = 0.25 * SCENE_SCALE;
 
 export const ROOM_BOUNDS = { minX: -1.5, maxX: 2.5, minZ: -0.48, maxZ: 3.52 };
 
+export const ROOM_SIZE = {
+  width: ROOM_BOUNDS.maxX - ROOM_BOUNDS.minX,
+  depth: ROOM_BOUNDS.maxZ - ROOM_BOUNDS.minZ,
+};
+
+export const ROOM_CENTER = {
+  x: (ROOM_BOUNDS.minX + ROOM_BOUNDS.maxX) / 2,
+  z: (ROOM_BOUNDS.minZ + ROOM_BOUNDS.maxZ) / 2,
+};
+
 export const CAMERA_LIMITS = {
   minDistance: 1.4 * SCENE_SCALE,
 

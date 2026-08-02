@@ -14,10 +14,11 @@ import {
 } from "three";
 import { useRoom } from "./RoomContext";
 import { skyColorForHour } from "./lighting";
-import { MAX_FRAME_DELTA, ROOM_BOUNDS } from "./constants";
+import { MAX_FRAME_DELTA, ROOM_BOUNDS, ROOM_CENTER } from "./constants";
+import { seededRandom } from "./random";
 
-const { maxX, minZ, maxZ } = ROOM_BOUNDS;
-const centerZ = (minZ + maxZ) / 2;
+const { maxX } = ROOM_BOUNDS;
+const { z: centerZ } = ROOM_CENTER;
 
 export const WINDOW_OPENING = {
   x: 3.0 - centerZ,
@@ -29,20 +30,15 @@ export const WINDOW_OPENING = {
 const BACKDROP_X = maxX + 2.2;
 const RAIN_GREY = new Color("#8b95a3");
 
-const rand = (i: number, salt: number) => {
-  const v = Math.sin(i * 127.1 + salt * 311.7) * 43758.5453;
-  return v - Math.floor(v);
-};
-
 const STAR_COUNT = 360;
 
 function Stars({ darkness }: { darkness: number }) {
   const geometry = useMemo(() => {
     const positions = new Float32Array(STAR_COUNT * 3);
     for (let i = 0; i < STAR_COUNT; i++) {
-      positions[i * 3] = BACKDROP_X - 0.15 - rand(i, 3) * 0.5;
-      positions[i * 3 + 1] = 0.9 + rand(i, 1) ** 2 * 4.5;
-      positions[i * 3 + 2] = -2 + rand(i, 2) * 11;
+      positions[i * 3] = BACKDROP_X - 0.15 - seededRandom(i, 3) * 0.5;
+      positions[i * 3 + 1] = 0.9 + seededRandom(i, 1) ** 2 * 4.5;
+      positions[i * 3 + 2] = -2 + seededRandom(i, 2) * 11;
     }
     const geo = new BufferGeometry();
     geo.setAttribute("position", new BufferAttribute(positions, 3));
@@ -139,10 +135,10 @@ function OutsideRain({ darkness }: { darkness: number }) {
       Array.from({ length: RAIN_COUNT }, (_, i) => {
         const depth = i % 3; // 0 = near the glass, 2 = near the backdrop
         return {
-          x: maxX + 0.15 + depth * 0.75 + rand(i, 5) * 0.4,
-          z: 1.2 + rand(i, 6) * 3.6,
-          speed: 2.2 - depth * 0.45 + rand(i, 7) * 0.4,
-          phase: rand(i, 8),
+          x: maxX + 0.15 + depth * 0.75 + seededRandom(i, 5) * 0.4,
+          z: 1.2 + seededRandom(i, 6) * 3.6,
+          speed: 2.2 - depth * 0.45 + seededRandom(i, 7) * 0.4,
+          phase: seededRandom(i, 8),
           scale: 1 - depth * 0.28,
         };
       }),

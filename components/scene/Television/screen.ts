@@ -1,5 +1,5 @@
 /* Copyright (c) 2026 eele14. All Rights Reserved. */
-import { formatHour } from "../lighting";
+import { formatHour } from "../clock";
 
 export const PICTURE = { W: 256, H: 212 };
 export const INSET = 9;
