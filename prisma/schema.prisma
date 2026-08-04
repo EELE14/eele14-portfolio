@@ -54,6 +54,7 @@ model ContactMessage {
   subject   String
   message   String
   read      Boolean  @default(false)
+  ipAddress String?
   createdAt DateTime @default(now())
 }
 
