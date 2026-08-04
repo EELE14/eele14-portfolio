@@ -1,5 +1,6 @@
 /* Copyright (c) 2026 eele14. All Rights Reserved. */
 import { NextResponse, type NextRequest } from "next/server";
+import { getClientIp, UNKNOWN_IP } from "@/lib/server/client-ip";
 
 const UPSTREAM = "https://ipapi.co";
 const CACHE_SECONDS = 3600;
@@ -7,16 +8,14 @@ const CACHE_SECONDS = 3600;
 const PRIVATE_IP =
   /^(::1|::ffff:127\.|127\.|10\.|192\.168\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.|f[cd])/i;
 
-function clientIp(req: NextRequest): string | null {
-  const ip =
-    req.headers.get("cf-connecting-ip")?.trim() ||
-    req.headers.get("x-real-ip")?.trim();
-  if (!ip || PRIVATE_IP.test(ip)) return null;
+function publicClientIp(req: NextRequest): string | null {
+  const ip = getClientIp(req.headers);
+  if (ip === UNKNOWN_IP || PRIVATE_IP.test(ip)) return null;
   return ip;
 }
 
 export async function GET(req: NextRequest) {
-  const ip = clientIp(req);
+  const ip = publicClientIp(req);
   const url = ip ? `${UPSTREAM}/${ip}/json/` : `${UPSTREAM}/json/`;
 
   try {

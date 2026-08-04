@@ -4,17 +4,10 @@ import { prisma } from "@/lib/server/prisma";
 import { parseBody } from "@/lib/server/api";
 import { filterContent } from "@/lib/server/content-filter";
 import { getSessionFromRequest } from "@/lib/server/auth";
+import { getClientIp, UNKNOWN_IP } from "@/lib/server/client-ip";
 
 const MAX_NAME = 40;
 const MAX_MESSAGE = 1000;
-
-function getClientIp(req: NextRequest): string {
-  return (
-    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    req.headers.get("x-real-ip") ??
-    "unknown"
-  );
-}
 
 const LOCALHOST = new Set(["127.0.0.1", "::1", "::ffff:127.0.0.1"]);
 
@@ -66,11 +59,11 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const ip = getClientIp(req);
+  const ip = getClientIp(req.headers);
   const isDev = process.env.NODE_ENV === "development";
   const skipIpCheck = isDev && LOCALHOST.has(ip);
 
-  if (!skipIpCheck && ip !== "unknown") {
+  if (!skipIpCheck && ip !== UNKNOWN_IP) {
     const block = await prisma.guestbookBlock.findUnique({ where: { ip } });
     if (block) {
       const hasBlockedEntry = await prisma.guestbookEntry.findFirst({
@@ -106,7 +99,7 @@ export async function POST(req: NextRequest) {
 
   const filterResult = filterContent(`${name} ${message}`);
   if (!filterResult.ok) {
-    if (!skipIpCheck && ip !== "unknown") {
+    if (!skipIpCheck && ip !== UNKNOWN_IP) {
       await prisma.guestbookBlock.upsert({
         where: { ip },
         create: { ip, reason: filterResult.category ?? "policy" },

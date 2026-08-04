@@ -4,20 +4,13 @@ import { cookies } from "next/headers";
 import { signToken, COOKIE_NAME } from "@/lib/server/auth";
 import { parseBody } from "@/lib/server/api";
 import { prisma } from "@/lib/server/prisma";
+import { getClientIp } from "@/lib/server/client-ip";
 import { makeRateLimiter } from "@/lib/server/rate-limit";
 
 const failLimiter = makeRateLimiter(5, 15 * 60 * 1000, { failuresOnly: true });
 
-function getIp(req: NextRequest): string {
-  const cf = req.headers.get("cf-connecting-ip");
-  if (cf) return cf.trim();
-  const xff = req.headers.get("x-forwarded-for");
-  if (xff) return xff.split(",").at(-1)!.trim();
-  return "unknown";
-}
-
 export async function POST(req: NextRequest) {
-  const ip = getIp(req);
+  const ip = getClientIp(req.headers);
 
   if (!failLimiter.check(ip)) {
     return NextResponse.json(

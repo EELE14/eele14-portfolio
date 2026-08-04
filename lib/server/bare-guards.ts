@@ -2,6 +2,7 @@
 import type { IncomingMessage, ServerResponse } from "http";
 import type { Duplex } from "stream";
 import { jwtVerify } from "jose";
+import { getClientIpFromNodeHeaders, UNKNOWN_IP } from "./client-ip";
 import { makeRateLimiter } from "./rate-limit";
 import { validateBareTarget } from "./ssrf";
 
@@ -9,11 +10,9 @@ const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN ?? "http://localhost:3000";
 const rateLimiter = makeRateLimiter(300, 60_000);
 
 function getClientIp(req: IncomingMessage): string {
-  const cf = req.headers["cf-connecting-ip"] as string | undefined;
-  if (cf) return cf.trim();
-  const xff = req.headers["x-forwarded-for"] as string | undefined;
-  if (xff) return xff.split(",").at(-1)!.trim();
-  return req.socket.remoteAddress ?? "unknown";
+  const fromHeaders = getClientIpFromNodeHeaders(req.headers);
+  if (fromHeaders !== UNKNOWN_IP) return fromHeaders;
+  return req.socket.remoteAddress ?? UNKNOWN_IP;
 }
 
 function isAllowedOrigin(req: IncomingMessage): boolean {
