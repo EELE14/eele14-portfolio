@@ -7,12 +7,14 @@ import BioTab from "./tabs/BioTab";
 import ProjectsTab from "./tabs/ProjectsTab";
 import SkillsTab from "./tabs/SkillsTab";
 import GuestbookTab from "./tabs/GuestbookTab";
+import BansTab from "./tabs/BansTab";
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "bio", label: "Bio" },
   { id: "projects", label: "Projects" },
   { id: "skills", label: "Skills" },
   { id: "guestbook", label: "Guestbook" },
+  { id: "bans", label: "Bans" },
 ];
 
 export default function ContentEditor() {
@@ -72,6 +74,7 @@ export default function ContentEditor() {
         {tab === "projects" && <ProjectsTab />}
         {tab === "skills" && <SkillsTab />}
         {tab === "guestbook" && <GuestbookTab />}
+        {tab === "bans" && <BansTab />}
       </div>
     </div>
   );

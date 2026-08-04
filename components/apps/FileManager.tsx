@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { useFetchData } from "@/lib/client/hooks/useFetchData";
 import { useDesktopStore } from "@/store/windowStore";
+import SensitiveValue from "@/components/ui/SensitiveValue";
 
 interface Message {
   id: string;
@@ -11,6 +12,7 @@ interface Message {
   subject: string;
   message: string;
   read: boolean;
+  ipAddress: string | null;
   createdAt: string;
 }
 
@@ -216,6 +218,38 @@ export default function Inbox() {
                   }}
                 >
                   {msg.message}
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    marginBottom: "10px",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontFamily: "var(--font-system)",
+                      fontSize: "13px",
+                      color: "var(--color-muted)",
+                      flexShrink: 0,
+                    }}
+                  >
+                    IP:
+                  </span>
+                  {msg.ipAddress ? (
+                    <SensitiveValue value={msg.ipAddress} fontSize="12px" />
+                  ) : (
+                    <span
+                      style={{
+                        fontFamily: "var(--font-body)",
+                        fontSize: "12px",
+                        color: "var(--color-muted)",
+                      }}
+                    >
+                      not recorded
+                    </span>
+                  )}
                 </div>
                 <div style={{ display: "flex", gap: "6px" }}>
                   <button

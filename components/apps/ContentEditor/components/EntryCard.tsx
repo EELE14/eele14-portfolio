@@ -1,18 +1,21 @@
 /* Copyright (c) 2026 eele14. All Rights Reserved. */
 import { formatDate } from "@/lib/shared/format";
+import SensitiveValue from "@/components/ui/SensitiveValue";
 import type { GuestbookEntry } from "../types";
-import { btnPrimary } from "../constants";
+import { btnPrimary, btnSecondary } from "../constants";
 
 interface EntryCardProps {
   entry: GuestbookEntry;
   onApprove?: () => void;
   onDelete: () => void;
+  onBlock?: () => void;
 }
 
 export default function EntryCard({
   entry,
   onApprove,
   onDelete,
+  onBlock,
 }: EntryCardProps) {
   return (
     <div
@@ -53,13 +56,46 @@ export default function EntryCard({
           fontFamily: "var(--font-body)",
           fontSize: "13px",
           lineHeight: 1.5,
-          margin: "0 0 8px",
+          margin: "0 0 6px",
           whiteSpace: "pre-wrap",
           wordBreak: "break-word",
         }}
       >
         {entry.message}
       </p>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "6px",
+          marginBottom: "8px",
+        }}
+      >
+        <span
+          style={{
+            fontFamily: "var(--font-system)",
+            fontSize: "13px",
+            color: "var(--color-muted)",
+            flexShrink: 0,
+          }}
+        >
+          IP:
+        </span>
+        {entry.ipAddress ? (
+          <SensitiveValue value={entry.ipAddress} fontSize="12px" />
+        ) : (
+          <span
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "12px",
+              color: "var(--color-muted)",
+            }}
+          >
+            not recorded
+          </span>
+        )}
+      </div>
+
       <div style={{ display: "flex", gap: "6px" }}>
         {onApprove && (
           <button
@@ -77,6 +113,15 @@ export default function EntryCard({
         >
           Delete
         </button>
+        {onBlock && entry.ipAddress && (
+          <button
+            onClick={onBlock}
+            className="btn"
+            style={{ ...btnSecondary, fontSize: "12px", padding: "1px 10px" }}
+          >
+            Block IP
+          </button>
+        )}
       </div>
     </div>
   );

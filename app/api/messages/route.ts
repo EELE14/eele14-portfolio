@@ -4,6 +4,7 @@ import { Resend } from "resend";
 import { prisma } from "@/lib/server/prisma";
 import { getSessionFromRequest } from "@/lib/server/auth";
 import { handlePrismaError, parseBody } from "@/lib/server/api";
+import { getClientIp, UNKNOWN_IP } from "@/lib/server/client-ip";
 
 const MAX_NAME = 100;
 const MAX_SUBJECT = 200;
@@ -62,11 +63,13 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    const ip = getClientIp(req.headers);
     const msg = await prisma.contactMessage.create({
       data: {
         fromName: fromName.trim(),
         subject: subject.trim(),
         message: message.trim(),
+        ipAddress: ip === UNKNOWN_IP ? null : ip,
       },
     });
 

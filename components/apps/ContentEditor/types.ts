@@ -1,6 +1,6 @@
 /* Copyright (c) 2026 eele14. All Rights Reserved. */
 
-export type Tab = "bio" | "projects" | "skills" | "guestbook";
+export type Tab = "bio" | "projects" | "skills" | "guestbook" | "bans";
 
 export interface Project {
   id: string;
@@ -28,5 +28,13 @@ export interface GuestbookEntry {
   message: string;
   approved: boolean;
   blocked: boolean;
+  ipAddress: string | null;
   createdAt: string;
+}
+
+export interface GuestbookBlock {
+  ip: string;
+  reason: string;
+  createdAt: string;
+  entryCount: number;
 }

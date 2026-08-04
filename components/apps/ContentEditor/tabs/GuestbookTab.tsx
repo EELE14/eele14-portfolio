@@ -21,6 +21,16 @@ export default function GuestbookTab() {
     reload();
   }
 
+  async function blockIp(ip: string | null) {
+    if (!ip) return;
+    await fetch("/api/guestbook/blocks", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ip, reason: "blocked from guestbook" }),
+    });
+    reload();
+  }
+
   const blocked = entries.filter((e) => e.blocked);
   const pending = entries.filter((e) => !e.approved && !e.blocked);
   const approved = entries.filter((e) => e.approved);
@@ -76,6 +86,7 @@ export default function GuestbookTab() {
               entry={e}
               onApprove={() => void approve(e.id)}
               onDelete={() => void remove(e.id)}
+              onBlock={() => void blockIp(e.ipAddress)}
             />
           ))}
         </>
@@ -90,6 +101,7 @@ export default function GuestbookTab() {
               entry={e}
               onApprove={() => void approve(e.id)}
               onDelete={() => void remove(e.id)}
+              onBlock={() => void blockIp(e.ipAddress)}
             />
           ))}
         </>
