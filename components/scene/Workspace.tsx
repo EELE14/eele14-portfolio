@@ -15,6 +15,10 @@ import Television from "./Television";
 import { hoverCursor, Poi, usePoi } from "./Poi";
 import { useRoom } from "./RoomContext";
 import {
+  WHEEL_BRIDGE_TYPE,
+  type WheelBridgeMessage,
+} from "@/lib/shared/wheel-bridge";
+import {
   HTML_SCALE,
   LAPTOP_SCALE,
   SCENE_SCALE,
@@ -126,6 +130,30 @@ function Radio() {
 }
 
 function LaptopScreen() {
+  useEffect(() => {
+    const onWheel = (e: WheelEvent) => {
+      const frame = e.target;
+      if (!(frame instanceof HTMLIFrameElement)) return;
+      if (!frame.closest(".laptop-screen")) return;
+      const target = frame.contentWindow;
+      if (!target) return;
+
+      e.preventDefault();
+      const message: WheelBridgeMessage = {
+        type: WHEEL_BRIDGE_TYPE,
+        deltaX: e.deltaX,
+        deltaY: e.deltaY,
+      };
+      target.postMessage(message, window.location.origin);
+    };
+    document.addEventListener("wheel", onWheel, {
+      capture: true,
+      passive: false,
+    });
+    return () =>
+      document.removeEventListener("wheel", onWheel, { capture: true });
+  }, []);
+
   return (
     <Html
       transform

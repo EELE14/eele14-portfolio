@@ -10,6 +10,7 @@ import {
 } from "react";
 import { APPS, RECYCLE_BIN } from "@/lib/client/apps";
 import { useDesktopStore } from "@/store/windowStore";
+import { useWheelBridgeTarget } from "@/lib/client/hooks/useWheelBridgeTarget";
 import BootScreen from "./BootScreen";
 import DesktopIcon from "./DesktopIcon";
 import FloatingIcons from "./FloatingIcons";
@@ -70,6 +71,9 @@ function adminAppCtxItems(
 }
 
 export default function Desktop() {
+  // WebKit does not deliver wheel into this iframe, the scene forwards it.
+  useWheelBridgeTarget();
+
   const {
     openWindow,
     openRepoWindow,
