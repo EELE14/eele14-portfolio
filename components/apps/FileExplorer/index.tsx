@@ -10,9 +10,9 @@ import { useVFSItems } from "./hooks/useVFSItems";
 import {
   readFile,
   resolveParentForWrite,
-  formatSize,
   type VFSNode,
 } from "@/lib/shared/vfs";
+import { formatFileSize } from "@/lib/shared/format";
 import { VFS_ROOTS, canonicalRootName } from "@/lib/shared/vfs/constants";
 import Toolbar from "./components/Toolbar";
 import FileViewer from "./components/FileViewer";
@@ -172,7 +172,7 @@ export default function FileExplorer({
             location,
             size:
               node.content !== null
-                ? formatSize(new TextEncoder().encode(node.content).length)
+                ? formatFileSize(new TextEncoder().encode(node.content).length)
                 : undefined,
             created: node.createdAt,
           });

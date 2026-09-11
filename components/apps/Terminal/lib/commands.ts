@@ -6,9 +6,9 @@ import {
   resolvePath,
   resolveParentForWrite,
   formatPath,
-  formatSize,
   tokenise,
 } from "@/lib/shared/vfs";
+import { formatFileSize } from "@/lib/shared/format";
 import { mkLine } from "../constants";
 import type { Line, OpenActions } from "../types";
 
@@ -161,7 +161,7 @@ export async function runCommand(
             break;
           default:
             tag = "[FILE]";
-            extra = e.size !== undefined ? `  ${formatSize(e.size)}` : "";
+            extra = e.size !== undefined ? `  ${formatFileSize(e.size)}` : "";
         }
         lines.push(mkLine("output", `  ${tag}  ${e.name}${extra}`));
       }

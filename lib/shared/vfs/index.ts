@@ -19,7 +19,7 @@ import type { VFSRootName } from "./constants";
 export type { VFSNodeKind, VFSNode } from "./types";
 export { invalidateProjectCache } from "./api";
 export { resolveParentForWrite } from "./mount";
-export { resolvePath, formatPath, formatSize, tokenise } from "./path";
+export { resolvePath, formatPath, tokenise } from "./path";
 
 export async function listDir(
   path: string[],

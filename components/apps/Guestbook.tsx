@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { GuestbookEntry } from "@/lib/server/guestbook";
+import type { GuestbookEntry } from "@/lib/shared/guestbook";
 import { useDesktopStore } from "@/store/windowStore";
 
 export default function Guestbook() {
@@ -32,6 +32,7 @@ export default function Guestbook() {
                 message: s.message,
                 approved: true,
                 blocked: false,
+                ipAddress: null,
                 createdAt: s.createdAt,
               });
             }

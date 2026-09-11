@@ -1,5 +1,7 @@
 /* Copyright (c) 2026 eele14. All Rights Reserved. */
 
+export type { GuestbookEntry } from "@/lib/shared/guestbook";
+
 export type Tab = "bio" | "projects" | "skills" | "guestbook" | "bans";
 
 export interface Project {
@@ -20,16 +22,6 @@ export interface Skill {
   id: string;
   name: string;
   icon?: string | null;
-}
-
-export interface GuestbookEntry {
-  id: string;
-  name: string;
-  message: string;
-  approved: boolean;
-  blocked: boolean;
-  ipAddress: string | null;
-  createdAt: string;
 }
 
 export interface GuestbookBlock {
