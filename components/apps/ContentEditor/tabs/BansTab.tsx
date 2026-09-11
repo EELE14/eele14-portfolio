@@ -1,199 +1,89 @@
 /* Copyright (c) 2026 eele14. All Rights Reserved. */
-import { useState } from "react";
 import { useFetchData } from "@/lib/client/hooks/useFetchData";
-import EmptyState from "@/components/ui/EmptyState";
-import LoadingState from "@/components/ui/LoadingState";
-import StatusBanner from "@/components/ui/StatusBanner";
-import SensitiveValue from "@/components/ui/SensitiveValue";
-import { formatDate } from "@/lib/shared/format";
-import type { GuestbookBlock } from "../types";
-import { btnPrimary, btnSecondary, fieldStyle, labelStyle } from "../constants";
+import BanSection from "../components/BanSection";
+import type { GuestbookBlock, IpBan } from "../types";
 
-const ENDPOINT = "/api/guestbook/blocks";
+const BLOCKS = "/api/guestbook/blocks";
+const BANS = "/api/bans";
 
-export default function BansTab() {
-  const { data, loading, reload } = useFetchData<GuestbookBlock[]>(ENDPOINT);
-  const blocks = data ?? [];
+async function errorFrom(res: Response, fallback: string): Promise<string> {
+  const body = (await res.json().catch(() => null)) as {
+    error?: string;
+  } | null;
+  return body?.error ?? fallback;
+}
 
-  const [ip, setIp] = useState("");
-  const [reason, setReason] = useState("");
-  const [error, setError] = useState<string | null>(null);
+function useBanList<T>(endpoint: string, field: "ip" | "network") {
+  const { data, loading, reload } = useFetchData<T[]>(endpoint);
 
-  async function block() {
-    setError(null);
-    const res = await fetch(ENDPOINT, {
+  async function add(value: string, reason: string): Promise<string | null> {
+    const res = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ip, reason }),
+      body: JSON.stringify({ [field]: value, reason }),
     });
-    if (!res.ok) {
-      const body = (await res.json().catch(() => null)) as {
-        error?: string;
-      } | null;
-      setError(body?.error ?? "Could not block that address.");
-      return;
-    }
-    setIp("");
-    setReason("");
+    if (!res.ok) return errorFrom(res, "Could not save that entry.");
     reload();
+    return null;
   }
 
-  async function unblock(target: string) {
-    setError(null);
-    await fetch(`${ENDPOINT}?ip=${encodeURIComponent(target)}`, {
+  async function remove(value: string): Promise<void> {
+    await fetch(`${endpoint}?${field}=${encodeURIComponent(value)}`, {
       method: "DELETE",
     });
     reload();
   }
 
+  return { rows: data ?? [], loading, reload, add, remove };
+}
+
+export default function BansTab() {
+  const bans = useBanList<IpBan>(BANS, "network");
+  const blocks = useBanList<GuestbookBlock>(BLOCKS, "ip");
+
   return (
     <div style={{ flex: 1, overflowY: "auto", padding: "12px" }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "10px",
-        }}
-      >
-        <span style={{ fontFamily: "var(--font-system)", fontSize: "16px" }}>
-          {blocks.length} blocked {blocks.length === 1 ? "address" : "addresses"}
-        </span>
-        <button
-          onClick={reload}
-          className="btn"
-          style={{ ...btnPrimary, fontSize: "13px", padding: "2px 10px" }}
-        >
-          Refresh
-        </button>
-      </div>
+      <BanSection
+        title="API bans"
+        rows={bans.rows.map((ban) => ({
+          value: ban.network,
+          reason: ban.reason,
+          createdAt: ban.createdAt,
+        }))}
+        loading={bans.loading}
+        addLabel="Ban"
+        removeLabel="Unban"
+        placeholder="203.0.113.42 or 2001:db8::/48"
+        hint="Blocks the browser, guestbook, contact form, AI and battleship."
+        emptyMessage="No banned addresses."
+        countNoun={["range", "ranges"]}
+        onAdd={bans.add}
+        onRemove={bans.remove}
+        onRefresh={bans.reload}
+      />
 
-      {error && (
-        <StatusBanner
-          variant="error"
-          message={error}
-          style={{ marginBottom: "10px" }}
-        />
-      )}
-
-      <div
-        style={{
-          border: "2px solid var(--color-ink)",
-          boxShadow: "2px 2px 0 var(--color-ink)",
-          background: "white",
-          padding: "8px 10px",
-          marginBottom: "12px",
-        }}
-      >
-        <label style={labelStyle} htmlFor="ban-ip">
-          Block an address
-        </label>
-        <div style={{ display: "flex", gap: "6px", alignItems: "flex-start" }}>
-          <input
-            id="ban-ip"
-            value={ip}
-            onChange={(e) => setIp(e.target.value)}
-            placeholder="203.0.113.42"
-            style={{ ...fieldStyle, flex: "0 0 190px" }}
-          />
-          <input
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-            placeholder="reason (optional)"
-            style={fieldStyle}
-          />
-          <button
-            onClick={() => void block()}
-            className="btn"
-            disabled={!ip.trim()}
-            style={{
-              ...btnPrimary,
-              fontSize: "13px",
-              padding: "3px 12px",
-              flexShrink: 0,
-              opacity: ip.trim() ? 1 : 0.5,
-            }}
-          >
-            Block
-          </button>
-        </div>
-        <p
-          style={{
-            fontFamily: "var(--font-body)",
-            fontSize: "11px",
-            color: "var(--color-muted)",
-            margin: "6px 0 0",
-            lineHeight: 1.5,
-          }}
-        >
-          Applies to future guestbook submissions only. Existing entries stay
-          untouched, and a blocked visitor is never told they are blocked.
-        </p>
-      </div>
-
-      {loading && <LoadingState message="Loading…" />}
-
-      {!loading && blocks.length === 0 && (
-        <EmptyState message="No blocked addresses." font="body" />
-      )}
-
-      {blocks.map((entry) => (
-        <div
-          key={entry.ip}
-          style={{
-            marginBottom: "8px",
-            padding: "8px 10px",
-            border: "2px solid var(--color-ink)",
-            borderLeft: "4px solid var(--color-accent)",
-            boxShadow: "2px 2px 0 var(--color-ink)",
-            background: "white",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              marginBottom: "4px",
-            }}
-          >
-            <SensitiveValue value={entry.ip} />
-            <span
-              style={{
-                fontFamily: "var(--font-body)",
-                fontSize: "11px",
-                color: "var(--color-muted)",
-                flexShrink: 0,
-              }}
-            >
-              {formatDate(entry.createdAt)}
-            </span>
-          </div>
-          <div
-            style={{
-              fontFamily: "var(--font-body)",
-              fontSize: "13px",
-              marginBottom: "8px",
-            }}
-          >
-            {entry.reason}
-            {entry.entryCount > 0 && (
-              <span style={{ color: "var(--color-muted)" }}>
-                {" "}
-                · {entry.entryCount} existing{" "}
-                {entry.entryCount === 1 ? "entry" : "entries"}
-              </span>
-            )}
-          </div>
-          <button
-            onClick={() => void unblock(entry.ip)}
-            className="btn"
-            style={{ ...btnSecondary, fontSize: "12px", padding: "1px 10px" }}
-          >
-            Unblock
-          </button>
-        </div>
-      ))}
+      <BanSection
+        title="Guestbook blocks"
+        rows={blocks.rows.map((block) => ({
+          value: block.ip,
+          reason: block.reason,
+          createdAt: block.createdAt,
+          note:
+            block.entryCount > 0
+              ? `${block.entryCount} existing ${block.entryCount === 1 ? "entry" : "entries"}`
+              : undefined,
+        }))}
+        loading={blocks.loading}
+        addLabel="Block"
+        removeLabel="Unblock"
+        placeholder="203.0.113.42"
+        hint="Guestbook only, and applies to future submissions."
+        emptyMessage="No blocked addresses."
+        countNoun={["address", "addresses"]}
+        onAdd={blocks.add}
+        onRemove={blocks.remove}
+        onRefresh={blocks.reload}
+      />
     </div>
   );
 }

@@ -1,15 +1,7 @@
 /* Copyright (c) 2026 eele14. All Rights Reserved. */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/server/prisma";
-import { getSessionFromRequest } from "@/lib/server/auth";
-import { handlePrismaError, parseBody } from "@/lib/server/api";
-
-async function requireAdmin(req: NextRequest) {
-  const session = await getSessionFromRequest(req);
-  return session?.isAdmin
-    ? null
-    : NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-}
+import { handlePrismaError, parseBody, requireAdmin } from "@/lib/server/api";
 
 export async function PUT(
   req: NextRequest,

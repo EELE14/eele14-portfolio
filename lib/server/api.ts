@@ -3,6 +3,16 @@ import { Prisma } from "@prisma/client";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { isBannedRequest } from "./ip-ban";
+import { getSessionFromRequest } from "./auth";
+
+export async function requireAdmin(
+  req: NextRequest,
+): Promise<NextResponse | null> {
+  const session = await getSessionFromRequest(req);
+  return session?.isAdmin
+    ? null
+    : NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+}
 
 export async function banGuard(req: NextRequest): Promise<NextResponse | null> {
   if (!(await isBannedRequest(req.headers))) return null;

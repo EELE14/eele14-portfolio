@@ -24,6 +24,12 @@ export interface Skill {
   icon?: string | null;
 }
 
+export interface IpBan {
+  network: string;
+  reason: string;
+  createdAt: string;
+}
+
 export interface GuestbookBlock {
   ip: string;
   reason: string;
