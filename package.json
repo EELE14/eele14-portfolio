@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "NODE_ENV=production tsx server.ts",
     "lint": "eslint",
+    "docker:dev": "APP_PORT=${APP_PORT:-3001} docker compose up --build",
     "postinstall": "tsx scripts/copy-uv.ts"
   },
   "dependencies": {
