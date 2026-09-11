@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { prisma } from "@/lib/server/prisma";
 import { getSessionFromRequest } from "@/lib/server/auth";
-import { handlePrismaError, parseBody } from "@/lib/server/api";
+import { banGuard, handlePrismaError, parseBody } from "@/lib/server/api";
 import { getClientIp, UNKNOWN_IP } from "@/lib/server/client-ip";
 
 const MAX_NAME = 100;
@@ -27,6 +27,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const banned = await banGuard(req);
+  if (banned) return banned;
+
   const body = await parseBody<{
     fromName?: string;
     subject?: string;

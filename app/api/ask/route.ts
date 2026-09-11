@@ -1,5 +1,6 @@
 /* Copyright (c) 2026 eele14. All Rights Reserved. */
 import { NextRequest } from "next/server";
+import { isBannedRequest } from "@/lib/server/ip-ban";
 
 const UPSTREAM = "https://ai.eele14.dev/completion";
 const TIMEOUT_MS = 60_000;
@@ -9,6 +10,10 @@ const MAX_PROMPT = 500;
 let busy = false;
 
 export async function POST(req: NextRequest): Promise<Response> {
+  if (await isBannedRequest(req.headers)) {
+    return json({ error: "Something went wrong" }, 403);
+  }
+
   const apiKey = process.env.LLAMA_API_KEY;
   if (!apiKey) {
     return json({ error: "AI not configured" }, 503);

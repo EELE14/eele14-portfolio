@@ -1,5 +1,5 @@
 /* Copyright (c) 2026 eele14. All Rights Reserved. */
-import type { IncomingHttpHeaders } from "http";
+import type { IncomingHttpHeaders, IncomingMessage } from "http";
 
 export const UNKNOWN_IP = "unknown";
 
@@ -27,4 +27,10 @@ export function getClientIpFromNodeHeaders(
     headers["cf-connecting-ip"] as string | undefined,
     headers["x-forwarded-for"] as string | undefined,
   );
+}
+
+export function getClientIpFromRequest(req: IncomingMessage): string {
+  const fromHeaders = getClientIpFromNodeHeaders(req.headers);
+  if (fromHeaders !== UNKNOWN_IP) return fromHeaders;
+  return req.socket.remoteAddress ?? UNKNOWN_IP;
 }

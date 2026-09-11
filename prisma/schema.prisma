@@ -91,3 +91,9 @@ model FsNode {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }
+
+model IpBan {
+  network   String   @id // canonical CIDR, e.g. "203.0.113.7/32" or "2001:db8::/64"
+  reason    String
+  createdAt DateTime @default(now())
+}

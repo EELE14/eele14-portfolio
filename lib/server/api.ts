@@ -1,6 +1,13 @@
 /* Copyright (c) 2026 eele14. All Rights Reserved. */
 import { Prisma } from "@prisma/client";
+import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { isBannedRequest } from "./ip-ban";
+
+export async function banGuard(req: NextRequest): Promise<NextResponse | null> {
+  if (!(await isBannedRequest(req.headers))) return null;
+  return NextResponse.json({ error: "Something went wrong" }, { status: 403 });
+}
 
 export function handlePrismaError(e: unknown): NextResponse {
   if (e instanceof Prisma.PrismaClientKnownRequestError) {

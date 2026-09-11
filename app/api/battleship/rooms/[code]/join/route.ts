@@ -1,13 +1,17 @@
 /* Copyright (c) 2026 eele14. All Rights Reserved. */
 import { NextRequest, NextResponse } from "next/server";
 import { joinRoom, getRoom, getClientRoom } from "@/lib/server/battleship";
+import { banGuard } from "@/lib/server/api";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ code: string }> },
 ) {
+  const banned = await banGuard(req);
+  if (banned) return banned;
+
   const { code } = await params;
   const result = joinRoom(code);
 

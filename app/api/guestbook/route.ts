@@ -1,7 +1,7 @@
 /* Copyright (c) 2026 eele14. All Rights Reserved. */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/server/prisma";
-import { parseBody } from "@/lib/server/api";
+import { banGuard, parseBody } from "@/lib/server/api";
 import { filterContent } from "@/lib/server/content-filter";
 import { getSessionFromRequest } from "@/lib/server/auth";
 import { getClientIp, UNKNOWN_IP } from "@/lib/server/client-ip";
@@ -29,6 +29,9 @@ function sanitize(s: string): string {
 }
 
 export async function POST(req: NextRequest) {
+  const banned = await banGuard(req);
+  if (banned) return banned;
+
   const body = await parseBody<{ name?: string; message?: string }>(req);
   if (!body)
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });

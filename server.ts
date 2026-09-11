@@ -5,6 +5,7 @@ import next from "next";
 import { createBareServer } from "@tomphttp/bare-server-node";
 import { WebSocketServer } from "ws";
 import { guardHttp, guardWs } from "./lib/server/bare-guards";
+import { isBannedNodeRequest } from "./lib/server/ip-ban";
 import {
   subscribe,
   unsubscribe,
@@ -95,9 +96,21 @@ app.prepare().then(() => {
       .pathname;
 
     if (pathname === "/api/battleship/ws") {
-      wss.handleUpgrade(req, socket, head, (ws) =>
-        wss.emit("connection", ws, req),
-      );
+      isBannedNodeRequest(req)
+        .then((banned) => {
+          if (banned) {
+            socket.write("HTTP/1.1 403 Forbidden\r\n\r\n");
+            socket.destroy();
+            return;
+          }
+          wss.handleUpgrade(req, socket, head, (ws) =>
+            wss.emit("connection", ws, req),
+          );
+        })
+        .catch((err) => {
+          console.error("[battleship] ws unhandled error", err);
+          socket.destroy();
+        });
     } else if (bare.shouldRoute(req)) {
       guardWs(req, socket)
         .then((ok) => {

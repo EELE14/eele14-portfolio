@@ -2,18 +2,13 @@
 import type { IncomingMessage, ServerResponse } from "http";
 import type { Duplex } from "stream";
 import { jwtVerify } from "jose";
-import { getClientIpFromNodeHeaders, UNKNOWN_IP } from "./client-ip";
+import { getClientIpFromRequest } from "./client-ip";
+import { isBannedIp } from "./ip-ban";
 import { makeRateLimiter } from "./rate-limit";
 import { validateBareTarget } from "./ssrf";
 
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN ?? "http://localhost:3000";
 const rateLimiter = makeRateLimiter(300, 60_000);
-
-function getClientIp(req: IncomingMessage): string {
-  const fromHeaders = getClientIpFromNodeHeaders(req.headers);
-  if (fromHeaders !== UNKNOWN_IP) return fromHeaders;
-  return req.socket.remoteAddress ?? UNKNOWN_IP;
-}
 
 function isAllowedOrigin(req: IncomingMessage): boolean {
   const origin = req.headers["origin"] as string | undefined;
@@ -68,8 +63,12 @@ export async function guardHttp(
   req: IncomingMessage,
   res: ServerResponse,
 ): Promise<boolean> {
-  const ip = getClientIp(req);
+  const ip = getClientIpFromRequest(req);
 
+  if (await isBannedIp(ip)) {
+    rejectHttp(res, 403, "FORBIDDEN", "Forbidden");
+    return false;
+  }
   if (!isAllowedOrigin(req)) {
     console.error("[bare] 403 origin", {
       origin: req.headers["origin"],
@@ -108,8 +107,12 @@ export async function guardWs(
   req: IncomingMessage,
   socket: Duplex,
 ): Promise<boolean> {
-  const ip = getClientIp(req);
+  const ip = getClientIpFromRequest(req);
 
+  if (await isBannedIp(ip)) {
+    rejectWs(socket, 403, "Forbidden");
+    return false;
+  }
   if (!isAllowedOrigin(req)) {
     console.error("[bare] ws 403 origin", { ip });
     rejectWs(socket, 403, "Forbidden");
