@@ -24,9 +24,11 @@ export async function GET(req: NextRequest) {
   }
 }
 
-function sanitize(s: string): string {
-  return s.replace(/<[^>]*>/g, "").replace(/\0/g, "");
+function stripNulls(s: string): string {
+  return s.replace(/\0/g, "");
 }
+
+const MARKUP = /<[a-zA-Z/!?]/;
 
 export async function POST(req: NextRequest) {
   const banned = await banGuard(req);
@@ -40,8 +42,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   }
 
-  const name = sanitize(body.name).trim();
-  const message = sanitize(body.message).trim();
+  const name = stripNulls(body.name).trim();
+  const message = stripNulls(body.message).trim();
 
   if (!name || !message) {
     return NextResponse.json(
@@ -58,6 +60,13 @@ export async function POST(req: NextRequest) {
   if (message.length > MAX_MESSAGE) {
     return NextResponse.json(
       { error: `Message must be ${MAX_MESSAGE} characters or fewer.` },
+      { status: 422 },
+    );
+  }
+
+  if (MARKUP.test(name) || MARKUP.test(message)) {
+    return NextResponse.json(
+      { error: "HTML tags are not allowed." },
       { status: 422 },
     );
   }
