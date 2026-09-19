@@ -4,6 +4,16 @@ declare const i: Window & typeof globalThis;
 declare const c: { sourceUrl: (url: string) => string };
 
 void (function () {
+  function isWebUrl(raw: string): boolean {
+    if (!raw) return false;
+    try {
+      const scheme = new URL(raw).protocol;
+      return scheme === "http:" || scheme === "https:";
+    } catch {
+      return false;
+    }
+  }
+
   if ("serviceWorker" in i.navigator) {
     try {
       const s: ServiceWorkerContainer = {
@@ -67,7 +77,8 @@ void (function () {
         e.stopPropagation();
         try {
           const h = anchor.href || "";
-          if (!h || h.startsWith("javascript:")) return;
+
+          if (!isWebUrl(h)) return;
           const tp = t === "_blank" ? "browser-open-tab" : "browser-navigate";
           window.top?.postMessage({ type: tp, value: h }, "*");
         } catch {}
