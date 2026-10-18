@@ -1,16 +1,23 @@
 /* Copyright (c) 2026 eele14. All Rights Reserved. */
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 import dynamic from "next/dynamic";
+import WebGLFallback from "./WebGLFallback";
+import { hasWebGL2 } from "./webgl";
 
 const Scene = dynamic(() => import("./Scene"), {
   ssr: false,
   loading: () => <div className="scene-loading">LOADING ROOM...</div>,
 });
 
+const noSubscription = () => () => {};
+
 export default function SceneLoader() {
   const rootRef = useRef<HTMLDivElement>(null);
+  // R3F creates the renderer in an un-awaited promise, so a missing WebGL
+  // context never reaches an error boundary — it has to be caught up front.
+  const webgl = useSyncExternalStore(noSubscription, hasWebGL2, () => true);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -28,7 +35,7 @@ export default function SceneLoader() {
 
   return (
     <div className="scene-root" ref={rootRef}>
-      <Scene />
+      {webgl ? <Scene /> : <WebGLFallback />}
     </div>
   );
 }
