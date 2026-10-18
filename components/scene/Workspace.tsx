@@ -79,8 +79,6 @@ function DeskLamp() {
       if (mat instanceof MeshStandardMaterial && mat.name === "lamp") {
         mat.emissive.set("#ffbe66");
         mat.emissiveIntensity = lampGlow * 0.4;
-        // the shade must not block its own light or it throws hard wedges
-        obj.castShadow = false;
       }
     });
     invalidate();

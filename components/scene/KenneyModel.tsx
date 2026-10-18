@@ -81,13 +81,22 @@ const TINTS: Partial<Record<ModelName, Record<string, string>>> = {
   trashcan: { metal: STEEL },
 };
 
-function toLitMaterials(root: Mesh["parent"], tints?: Record<string, string>) {
+
+const NO_SHADOW: Partial<Record<ModelName, string[]>> = {
+  lampRoundTable: ["lamp"],
+};
+
+function toLitMaterials(
+  root: Mesh["parent"],
+  tints?: Record<string, string>,
+  noShadow?: string[],
+) {
   root?.traverse((obj) => {
     if (!(obj instanceof Mesh) || Array.isArray(obj.material)) return;
-    obj.castShadow = true;
+    const name = obj.material.name;
+    obj.castShadow = !noShadow?.includes(name);
     obj.receiveShadow = true;
 
-    const name = obj.material.name;
     if (obj.material instanceof MeshBasicMaterial) {
       const lit = new MeshStandardMaterial({
         color: obj.material.color,
@@ -111,7 +120,7 @@ export default function KenneyModel({ model, ...props }: KenneyModelProps) {
   const { scene } = useGLTF(modelUrl(model), true, false);
 
   const object = useMemo(() => {
-    toLitMaterials(scene, TINTS[model]);
+    toLitMaterials(scene, TINTS[model], NO_SHADOW[model]);
     return scene.clone();
   }, [scene, model]);
   return (
