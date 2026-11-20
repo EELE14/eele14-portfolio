@@ -163,10 +163,16 @@ function MenuBar() {
   );
 }
 
-function DemoWindow() {
+interface DemoWindowProps {
+  title: string;
+  box: { x: number; y: number; width: number; height: number };
+  children: React.ReactNode;
+}
+
+function DemoWindow({ title, box, children }: DemoWindowProps) {
   return (
     <Rnd
-      default={{ x: 56, y: 76, width: 520, height: 360 }}
+      default={box}
       minWidth={320}
       minHeight={220}
       bounds="parent"
@@ -180,28 +186,69 @@ function DemoWindow() {
             <i />
             <i />
           </span>
-          Liquid Glass
+          {title}
         </div>
-        <div className="demo-body">
-          <h1>Liquid Glass in a browser</h1>
-          <p>
-            Drag the glass lens around this demo window, the rim bends the text
-            and everything below, a displacement map derived from a convex
-            glass, runs as svg filter.
-          </p>
-          <p>
-            Chromium can run the filter on the glass itself, the others use
-            WebGL as a workaround, drawn from a snapshot of whats beneath,
-            refreshed when window changes.
-          </p>
-          <div className="demo-swatches">
-            {SWATCHES.map((color) => (
-              <span key={color} style={{ background: color }} />
-            ))}
-          </div>
-        </div>
+        {children}
       </div>
     </Rnd>
+  );
+}
+
+function TextWindow() {
+  return (
+    <DemoWindow
+      title="Liquid Glass"
+      box={{ x: 56, y: 76, width: 520, height: 360 }}
+    >
+      <div className="demo-body">
+        <h1>Liquid Glass in a browser</h1>
+        <p>
+          Drag the glass lens around this demo window, the rim bends the text
+          and everything below, a displacement map derived from a convex glass,
+          runs as svg filter.
+        </p>
+        <p>
+          Chromium can run the filter on the glass itself, the others use WebGL
+          as a workaround, drawn from a snapshot of whats beneath, refreshed
+          when window changes.
+        </p>
+        <div className="demo-swatches">
+          {SWATCHES.map((color) => (
+            <span key={color} style={{ background: color }} />
+          ))}
+        </div>
+      </div>
+    </DemoWindow>
+  );
+}
+
+const FRAME_DOC = `<body style="margin:0;height:100vh;display:grid;place-items:center;
+  font:800 28px -apple-system,system-ui,sans-serif;font-variant-numeric:tabular-nums;
+  color:#fff;text-shadow:0 2px 8px #0008">
+  <span>Inside an iframe <span id="clock"></span></span>
+  <script>
+    const start = performance.now();
+    const clock = document.getElementById("clock");
+    function tick(now) {
+      const seconds = (now - start) / 1000;
+      document.body.style.background =
+        "repeating-linear-gradient(" + (135 + seconds * 20) + "deg," +
+        "#ff5f57 0 28px,#febc2e 28px 56px,#28c840 56px 84px,#0a84ff 84px 112px)";
+      clock.textContent = seconds.toFixed(1) + " s";
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  </script></body>`;
+
+// Same-origin, so the rim renders the frame from its own document.
+function FrameWindow() {
+  return (
+    <DemoWindow
+      title="iframe"
+      box={{ x: 640, y: 110, width: 420, height: 280 }}
+    >
+      <iframe className="demo-frame" title="iframe sample" srcDoc={FRAME_DOC} />
+    </DemoWindow>
   );
 }
 
@@ -282,7 +329,8 @@ export default function GlassDemo() {
         <>
           <Wallpaper />
           <MenuBar />
-          <DemoWindow />
+          <TextWindow />
+          <FrameWindow />
         </>
       }
     >

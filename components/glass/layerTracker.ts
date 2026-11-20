@@ -21,10 +21,25 @@ export interface LayerTracker {
   dispose(): void;
 }
 
+const WATCHED = {
+  subtree: true,
+  childList: true,
+  attributes: true,
+  characterData: true,
+};
+
+function hostElement(node: Node | null): Element | null {
+  if (!node) return null;
+  if (node.nodeType === Node.DOCUMENT_NODE)
+    return (node as Document).defaultView?.frameElement ?? null;
+  if (node.nodeType === Node.ELEMENT_NODE) return node as Element;
+  return node.parentElement;
+}
+
 function directChild(root: Element, node: Node | null): Element | null {
-  let current = node instanceof Element ? node : (node?.parentElement ?? null);
+  let current = hostElement(node);
   while (current && current.parentElement !== root) {
-    current = current.parentElement;
+    current = current.parentElement ?? hostElement(current.ownerDocument);
   }
   return current;
 }
@@ -85,15 +100,29 @@ export function trackLayers(root: HTMLElement): LayerTracker {
       if (!moved) markDirty(record.target);
     }
   });
-  observer.observe(root, {
-    subtree: true,
-    childList: true,
-    attributes: true,
-    characterData: true,
-  });
+  const listening = new AbortController();
   const onChange = (event: Event) => markDirty(event.target as Node);
-  root.addEventListener("input", onChange, true);
-  root.addEventListener("scroll", onChange, true);
+  const onLoad = (event: Event) => {
+    markDirty(event.target as Node);
+    watchFrame(event.target as Element);
+  };
+
+  function watch(target: Element | Document) {
+    observer.observe(target, WATCHED);
+    const options = { capture: true, signal: listening.signal };
+    target.addEventListener("input", onChange, options);
+    target.addEventListener("scroll", onChange, options);
+    target.addEventListener("load", onLoad, options);
+    target.querySelectorAll("iframe").forEach(watchFrame);
+  }
+
+  function watchFrame(element: Element) {
+    if (element.localName !== "iframe") return;
+    const doc = (element as HTMLIFrameElement).contentDocument;
+    if (doc) watch(doc);
+  }
+
+  watch(root);
 
   function capture(child: HTMLElement, state: Tracked, ratio: number) {
     state.pending = true;
@@ -159,8 +188,7 @@ export function trackLayers(root: HTMLElement): LayerTracker {
     dispose() {
       disposed = true;
       observer.disconnect();
-      root.removeEventListener("input", onChange, true);
-      root.removeEventListener("scroll", onChange, true);
+      listening.abort();
     },
   };
 }

@@ -282,6 +282,12 @@
   background: #28c840;
 }
 
+.demo-frame {
+  flex: 1;
+  width: 100%;
+  border: none;
+}
+
 .demo-body {
   display: flex;
   flex-direction: column;
