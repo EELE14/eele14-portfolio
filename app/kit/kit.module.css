@@ -1,0 +1,73 @@
+/* Copyright (c) 2026 eele14. All Rights Reserved. */
+
+.page {
+  height: 100%;
+  overflow: auto;
+  padding: var(--ui-space-5);
+  background: var(--ui-window-bg);
+  font-family: var(--ui-font);
+  font-size: var(--ui-text);
+  color: var(--ui-label);
+}
+
+.page h1 {
+  font-size: var(--ui-text-large-title);
+  font-weight: 700;
+}
+
+.lead {
+  margin-top: var(--ui-space-1);
+  color: var(--ui-label-secondary);
+}
+
+.section {
+  margin-top: var(--ui-space-5);
+  padding: var(--ui-space-4);
+  border-radius: var(--ui-radius-card);
+  background: var(--ui-content-bg);
+  box-shadow: var(--ui-border-control);
+}
+
+.section h2 {
+  margin-bottom: var(--ui-space-3);
+  font-size: var(--ui-text-title);
+  font-weight: 600;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 110px repeat(4, max-content);
+  align-items: center;
+  gap: var(--ui-space-3) var(--ui-space-4);
+}
+
+.rowLabel {
+  color: var(--ui-label-secondary);
+}
+
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ui-space-3);
+}
+
+.swatch {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-1);
+  width: 96px;
+  font-size: var(--ui-text-small);
+  color: var(--ui-label-secondary);
+}
+
+.swatch span {
+  height: 40px;
+  border-radius: var(--ui-radius-control);
+  box-shadow: var(--ui-border-control);
+}
+
+.type {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-2);
+}

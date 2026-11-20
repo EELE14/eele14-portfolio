@@ -1,8 +1,9 @@
 /* Copyright (c) 2026 eele14. All Rights Reserved. */
 import type { Metadata } from "next";
-import { VT323, Courier_Prime, Space_Mono } from "next/font/google";
+import { VT323, Courier_Prime, Space_Mono, Inter } from "next/font/google";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import "./globals.css";
+import "@/components/ui/tokens.css";
 
 const vt323 = VT323({
   weight: "400",
@@ -20,6 +21,12 @@ const spaceMono = Space_Mono({
   weight: ["400", "700"],
   variable: "--font-space-mono",
   subsets: ["latin"],
+});
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  preload: false,
 });
 
 const BASE_URL = "https://eele14.dev";
@@ -66,7 +73,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${vt323.variable} ${courierPrime.variable} ${spaceMono.variable} h-full`}
+      className={`${vt323.variable} ${courierPrime.variable} ${spaceMono.variable} ${inter.variable} h-full`}
     >
       <body className="h-full overflow-hidden">
         <noscript>

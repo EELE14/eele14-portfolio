@@ -1,0 +1,118 @@
+/* Copyright (c) 2026 eele14. All Rights Reserved. */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-shrink: 0;
+  border: none;
+  font-family: var(--ui-font);
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.button:focus-visible {
+  outline: none;
+  box-shadow: var(--ui-focus-ring);
+}
+
+.button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.regular {
+  height: var(--ui-control-regular);
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: var(--ui-text);
+}
+
+.small {
+  height: var(--ui-control-small);
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.default,
+.destructive {
+  background: var(--ui-control-bg);
+  box-shadow: var(--ui-border-control), var(--ui-shadow-control);
+  color: var(--ui-label);
+}
+
+.destructive {
+  color: var(--ui-red);
+}
+
+.default:hover:not(:disabled),
+.destructive:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--ui-control-bg) 94%, black);
+}
+
+.default:active:not(:disabled),
+.destructive:active:not(:disabled) {
+  background: color-mix(in srgb, var(--ui-control-bg) 88%, black);
+}
+
+.primary {
+  background: var(--ui-accent);
+  box-shadow: var(--ui-shadow-control);
+  color: var(--ui-on-accent);
+}
+
+.primary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--ui-accent) 90%, white);
+}
+
+.primary:active:not(:disabled) {
+  background: color-mix(in srgb, var(--ui-accent) 88%, black);
+}
+
+.plain {
+  background: transparent;
+  color: var(--ui-accent);
+}
+
+.plain:hover:not(:disabled) {
+  background: var(--ui-fill-hover);
+}
+
+.plain:active:not(:disabled) {
+  background: var(--ui-fill-pressed);
+}
+
+.icon {
+  padding: 0;
+  border-radius: var(--ui-radius-control);
+  background: transparent;
+  color: var(--ui-label-secondary);
+}
+
+.icon.regular {
+  width: var(--ui-control-regular);
+}
+
+.icon.small {
+  width: var(--ui-control-small);
+}
+
+.icon:hover:not(:disabled) {
+  background: var(--ui-fill-hover);
+  color: var(--ui-label);
+}
+
+.icon:active:not(:disabled) {
+  background: var(--ui-fill-pressed);
+}
+
+.icon[aria-pressed="true"] {
+  background: var(--ui-fill-pressed);
+  color: var(--ui-label);
+}
