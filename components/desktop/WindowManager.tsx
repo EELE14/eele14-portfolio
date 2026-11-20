@@ -74,8 +74,6 @@ const APP_COMPONENTS: Record<string, React.ComponentType> = {
   "stupid-ai.exe": StupidAI,
 };
 
-const REPO_EXPLORER_MIN = { width: 480, height: 340 };
-
 export default function WindowManager() {
   const windows = useDesktopStore((s) => s.windows);
   const visible = windows.filter((w) => w.isOpen && !w.isMinimized);
@@ -140,15 +138,7 @@ export default function WindowManager() {
           );
         }
 
-        const appDef = getApp(win.appId);
-        const minWidth =
-          isRepo || isMedia || isText
-            ? REPO_EXPLORER_MIN.width
-            : appDef?.minSize.width;
-        const minHeight =
-          isRepo || isMedia || isText
-            ? REPO_EXPLORER_MIN.height
-            : appDef?.minSize.height;
+        const minSize = getApp(win.appId)?.minSize;
 
         return (
           <Window
@@ -160,8 +150,8 @@ export default function WindowManager() {
             isMaximized={win.isMaximized}
             position={win.position}
             size={win.size}
-            minWidth={minWidth}
-            minHeight={minHeight}
+            minWidth={minSize?.width}
+            minHeight={minSize?.height}
           >
             {content}
           </Window>

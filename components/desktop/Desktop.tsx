@@ -8,7 +8,8 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
-import { APPS, RECYCLE_BIN } from "@/lib/client/apps";
+import { getApp, LISTED_APPS, RECYCLE_BIN } from "@/lib/client/apps";
+import { useInboxStore } from "@/store/inboxStore";
 import { useDesktopStore } from "@/store/windowStore";
 import { useWheelBridgeTarget } from "@/lib/client/hooks/useWheelBridgeTarget";
 import BootScreen from "./BootScreen";
@@ -93,7 +94,6 @@ export default function Desktop() {
     activeContextMenu,
     showContextMenu,
     hideContextMenu,
-    setInboxUnread,
     windows,
     closeWindow,
   } = useDesktopStore();
@@ -208,12 +208,7 @@ export default function Desktop() {
         .then((r) => r.json())
         .then((data: { isAdmin?: boolean }) => {
           setAdmin(!!data.isAdmin);
-          if (data.isAdmin) {
-            fetch("/api/messages/unread")
-              .then((r) => r.json())
-              .then((d: { count?: number }) => setInboxUnread(d.count ?? 0))
-              .catch(() => {});
-          }
+          if (data.isAdmin) useInboxStore.getState().refreshUnread();
         }),
       fetch("/api/projects")
         .then((r) => r.json())
@@ -250,7 +245,7 @@ export default function Desktop() {
             .catch(() => {})
         : Promise.resolve(),
     ]).then(() => {});
-  }, [setAdmin, setInboxUnread]);
+  }, [setAdmin]);
 
   type Rect = { x: number; y: number; w: number; h: number };
   const marqueeOrigin = useRef<Pos | null>(null);
@@ -405,8 +400,8 @@ export default function Desktop() {
     ],
   };
 
-  const publicApps = APPS.filter((a) => !a.adminOnly);
-  const adminApps = APPS.filter((a) => a.adminOnly);
+  const publicApps = LISTED_APPS.filter((a) => !a.adminOnly);
+  const adminApps = LISTED_APPS.filter((a) => a.adminOnly);
   const visibleApps = [...publicApps, ...(isAdmin ? adminApps : [])].filter(
     (a) => !hiddenIcons.includes(a.id),
   );
@@ -532,7 +527,7 @@ export default function Desktop() {
                   key={iconId}
                   id={iconId}
                   label={renamedIcons[iconId] ?? p.title}
-                  icon={APPS.find((a) => a.id === "explorer.exe")?.icon}
+                  icon={getApp("explorer.exe")?.icon}
                   defaultPosition={defaultPos}
                   isAdmin={isAdmin}
                   type="Folder"

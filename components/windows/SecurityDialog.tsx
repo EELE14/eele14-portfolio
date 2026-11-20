@@ -2,18 +2,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useInboxStore } from "@/store/inboxStore";
 import { useDesktopStore } from "@/store/windowStore";
 
 type Status = "idle" | "loading" | "error";
 
 export default function SecurityDialog() {
-  const {
-    setShowSecurityDialog,
-    setAdmin,
-    setInboxUnread,
-    isAdmin,
-    openWindow,
-  } = useDesktopStore();
+  const { setShowSecurityDialog, setAdmin, isAdmin, openWindow } =
+    useDesktopStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<Status>("idle");
@@ -40,10 +36,7 @@ export default function SecurityDialog() {
       if (res.ok) {
         setAdmin(true);
         setShowSecurityDialog(false);
-        fetch("/api/messages/unread")
-          .then((r) => r.json())
-          .then((d: { count?: number }) => setInboxUnread(d.count ?? 0))
-          .catch(() => {});
+        useInboxStore.getState().refreshUnread();
       } else {
         setStatus("error");
         setPassword("");

@@ -1,6 +1,6 @@
 /* Copyright (c) 2026 eele14. All Rights Reserved. */
 import type { ReactNode } from "react";
-import { useDesktopStore } from "@/store/windowStore";
+import { useInboxStore } from "@/store/inboxStore";
 
 export interface AppDef {
   id: string;
@@ -9,6 +9,7 @@ export interface AppDef {
   defaultSize: { width: number; height: number };
   minSize: { width: number; height: number };
   adminOnly: boolean;
+  listed: boolean;
   icon: ReactNode;
 }
 
@@ -283,7 +284,7 @@ function EditorIcon() {
 }
 
 function InboxIcon() {
-  const unread = useDesktopStore((s) => s.inboxUnread);
+  const unread = useInboxStore((s) => s.unread);
   return (
     <svg
       width="48"
@@ -689,6 +690,119 @@ function RecycleBinIcon() {
   );
 }
 
+function MinesweeperIcon() {
+  return (
+    <svg
+      width="48"
+      height="48"
+      viewBox="0 0 48 48"
+      fill="none"
+      aria-hidden="true"
+    >
+      {[0, 45, 90, 135].map((angle) => (
+        <line
+          key={angle}
+          x1="24"
+          y1="6"
+          x2="24"
+          y2="42"
+          stroke={stroke}
+          strokeWidth={sw}
+          strokeLinecap="round"
+          transform={`rotate(${angle} 24 24)`}
+        />
+      ))}
+      <circle
+        cx="24"
+        cy="24"
+        r="12"
+        fill="var(--color-ink)"
+        stroke={stroke}
+        strokeWidth={sw}
+      />
+      <circle cx="20" cy="20" r="3" fill="var(--bg-window)" />
+    </svg>
+  );
+}
+
+function TaskManagerIcon() {
+  return (
+    <svg
+      width="48"
+      height="48"
+      viewBox="0 0 48 48"
+      fill="none"
+      aria-hidden="true"
+    >
+      <rect
+        x="4"
+        y="6"
+        width="40"
+        height="36"
+        rx="1"
+        fill="var(--bg-window)"
+        stroke={stroke}
+        strokeWidth={sw}
+      />
+      <line x1="4" y1="14" x2="44" y2="14" stroke={stroke} strokeWidth={sw} />
+      {[
+        { x: 11, height: 10 },
+        { x: 19, height: 18 },
+        { x: 27, height: 6 },
+        { x: 35, height: 14 },
+      ].map(({ x, height }) => (
+        <rect
+          key={x}
+          x={x - 3}
+          y={36 - height}
+          width="6"
+          height={height}
+          fill="var(--color-teal)"
+          stroke={stroke}
+          strokeWidth={sw}
+        />
+      ))}
+    </svg>
+  );
+}
+
+function MediaIcon() {
+  return (
+    <svg
+      width="48"
+      height="48"
+      viewBox="0 0 48 48"
+      fill="none"
+      aria-hidden="true"
+    >
+      <rect
+        x="4"
+        y="8"
+        width="40"
+        height="32"
+        rx="1"
+        fill="var(--bg-window)"
+        stroke={stroke}
+        strokeWidth={sw}
+      />
+      <circle
+        cx="15"
+        cy="18"
+        r="4"
+        fill="var(--color-yellow)"
+        stroke={stroke}
+        strokeWidth={sw}
+      />
+      <path
+        d="M4 36 L17 24 L26 32 L32 27 L44 37"
+        stroke={stroke}
+        strokeWidth={sw}
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export const APPS: AppDef[] = [
   {
     id: "explorer.exe",
@@ -697,6 +811,7 @@ export const APPS: AppDef[] = [
     defaultSize: { width: 640, height: 480 },
     minSize: { width: 400, height: 300 },
     adminOnly: false,
+    listed: true,
     icon: <FolderIcon />,
   },
   {
@@ -706,6 +821,7 @@ export const APPS: AppDef[] = [
     defaultSize: { width: 560, height: 400 },
     minSize: { width: 320, height: 240 },
     adminOnly: false,
+    listed: true,
     icon: <NotepadIcon />,
   },
   {
@@ -715,6 +831,7 @@ export const APPS: AppDef[] = [
     defaultSize: { width: 600, height: 380 },
     minSize: { width: 380, height: 240 },
     adminOnly: false,
+    listed: true,
     icon: <TerminalIcon />,
   },
   {
@@ -724,6 +841,7 @@ export const APPS: AppDef[] = [
     defaultSize: { width: 520, height: 440 },
     minSize: { width: 360, height: 320 },
     adminOnly: false,
+    listed: true,
     icon: <MailIcon />,
   },
   {
@@ -733,6 +851,7 @@ export const APPS: AppDef[] = [
     defaultSize: { width: 760, height: 560 },
     minSize: { width: 580, height: 440 },
     adminOnly: false,
+    listed: true,
     icon: <BattleshipIcon />,
   },
   {
@@ -743,6 +862,7 @@ export const APPS: AppDef[] = [
     defaultSize: { width: 900, height: 620 },
     minSize: { width: 640, height: 440 },
     adminOnly: false,
+    listed: true,
     icon: <BrowserIcon />,
   },
   {
@@ -752,6 +872,7 @@ export const APPS: AppDef[] = [
     defaultSize: { width: 680, height: 480 },
     minSize: { width: 480, height: 360 },
     adminOnly: false,
+    listed: true,
     icon: <GuestbookIcon />,
   },
   {
@@ -761,6 +882,7 @@ export const APPS: AppDef[] = [
     defaultSize: { width: 520, height: 480 },
     minSize: { width: 360, height: 320 },
     adminOnly: false,
+    listed: true,
     icon: <StupidAIIcon />,
   },
   {
@@ -770,6 +892,7 @@ export const APPS: AppDef[] = [
     defaultSize: { width: 700, height: 520 },
     minSize: { width: 500, height: 380 },
     adminOnly: true,
+    listed: true,
     icon: <EditorIcon />,
   },
   {
@@ -779,7 +902,78 @@ export const APPS: AppDef[] = [
     defaultSize: { width: 620, height: 460 },
     minSize: { width: 440, height: 320 },
     adminOnly: true,
+    listed: true,
     icon: <InboxIcon />,
+  },
+  {
+    id: "minesweeper.exe",
+    title: "Minesweeper",
+    description: "Clear the field without hitting a mine",
+    defaultSize: { width: 340, height: 460 },
+    minSize: { width: 340, height: 460 },
+    adminOnly: false,
+    listed: false,
+    icon: <MinesweeperIcon />,
+  },
+  {
+    id: "taskmgr.exe",
+    title: "Windows Task Manager",
+    description: "Live server performance",
+    defaultSize: { width: 520, height: 480 },
+    minSize: { width: 420, height: 380 },
+    adminOnly: false,
+    listed: false,
+    icon: <TaskManagerIcon />,
+  },
+  {
+    id: "notepad",
+    title: "Notepad",
+    description: "Plain text editor",
+    defaultSize: { width: 560, height: 400 },
+    minSize: { width: 320, height: 240 },
+    adminOnly: false,
+    listed: false,
+    icon: <NotepadIcon />,
+  },
+  {
+    id: "guestbook-editor",
+    title: "Notepad",
+    description: "Write a guestbook entry",
+    defaultSize: { width: 560, height: 420 },
+    minSize: { width: 320, height: 240 },
+    adminOnly: false,
+    listed: false,
+    icon: <NotepadIcon />,
+  },
+  {
+    id: "text-viewer",
+    title: "Text Viewer",
+    description: "View source and text files",
+    defaultSize: { width: 700, height: 520 },
+    minSize: { width: 480, height: 340 },
+    adminOnly: false,
+    listed: false,
+    icon: <NotepadIcon />,
+  },
+  {
+    id: "media-viewer",
+    title: "Media Viewer",
+    description: "View images, PDFs and videos",
+    defaultSize: { width: 700, height: 520 },
+    minSize: { width: 480, height: 340 },
+    adminOnly: false,
+    listed: false,
+    icon: <MediaIcon />,
+  },
+  {
+    id: "repo-explorer",
+    title: "Repository",
+    description: "Browse a project repository",
+    defaultSize: { width: 640, height: 480 },
+    minSize: { width: 480, height: 340 },
+    adminOnly: false,
+    listed: false,
+    icon: <FolderIcon />,
   },
 ];
 
@@ -790,9 +984,18 @@ export const RECYCLE_BIN: AppDef = {
   defaultSize: { width: 400, height: 300 },
   minSize: { width: 300, height: 200 },
   adminOnly: false,
+  listed: false,
   icon: <RecycleBinIcon />,
 };
 
+export const LISTED_APPS = APPS.filter((app) => app.listed);
+
 export function getApp(id: string): AppDef | undefined {
   return APPS.find((a) => a.id === id);
+}
+
+export function requireApp(id: string): AppDef {
+  const app = getApp(id);
+  if (!app) throw new Error(`Unknown app: ${id}`);
+  return app;
 }

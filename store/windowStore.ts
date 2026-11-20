@@ -3,6 +3,7 @@
 
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import { getApp, requireApp, type AppDef } from "@/lib/client/apps";
 
 export interface WindowState {
   id: string;
@@ -41,8 +42,6 @@ interface DesktopStore {
   renamedIcons: Record<string, string>;
   hiddenIcons: string[];
   activeContextMenu: ActiveContextMenu | null;
-  inboxUnread: number;
-  setInboxUnread: (count: number) => void;
   setShowStartMenu: (v: boolean) => void;
   showContextMenu: (
     x: number,
@@ -79,46 +78,9 @@ interface DesktopStore {
   restoreIcon: (id: string) => void;
 }
 
-export const APP_DEFAULTS: Record<
-  string,
-  { title: string; size: { width: number; height: number } }
-> = {
-  "explorer.exe": { title: "File Explorer", size: { width: 640, height: 480 } },
-  "about.txt": {
-    title: "Notepad — about.txt",
-    size: { width: 560, height: 400 },
-  },
-  "cmd.exe": { title: "Command Prompt", size: { width: 600, height: 380 } },
-  "mail.exe": { title: "New Message", size: { width: 520, height: 440 } },
-  "minesweeper.exe": {
-    title: "Minesweeper",
-    size: { width: 340, height: 460 },
-  },
-  "battleship.exe": {
-    title: "Naval Combat",
-    size: { width: 760, height: 560 },
-  },
-  "browser.exe": {
-    title: "Internet Browser",
-    size: { width: 900, height: 620 },
-  },
-  "guestbook.exe": { title: "Guestbook", size: { width: 680, height: 480 } },
-  "guestbook-editor": { title: "Notepad", size: { width: 560, height: 420 } },
-  notepad: { title: "Notepad", size: { width: 560, height: 400 } },
-  "taskmgr.exe": {
-    title: "Windows Task Manager",
-    size: { width: 520, height: 480 },
-  },
-  "stupid-ai.exe": { title: "Stupid AI", size: { width: 520, height: 480 } },
-  "content_editor.exe": {
-    title: "Content Editor [ADMIN]",
-    size: { width: 700, height: 520 },
-  },
-  "file_manager.exe": {
-    title: "Inbox [ADMIN]",
-    size: { width: 620, height: 460 },
-  },
-};
+function windowTitle(app: AppDef): string {
+  return app.adminOnly ? `${app.title} [ADMIN]` : app.title;
+}
 
 function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -217,8 +179,6 @@ export const useDesktopStore = create<DesktopStore>()(
       renamedIcons: {},
       hiddenIcons: [],
       activeContextMenu: null,
-      inboxUnread: 0,
-      setInboxUnread: (count) => set({ inboxUnread: count }),
       setShowStartMenu: (v) => set({ showStartMenu: v }),
 
       showContextMenu: (x, y, items, title) => {
@@ -229,24 +189,22 @@ export const useDesktopStore = create<DesktopStore>()(
       },
 
       openWindow: (appId) => {
-        const defaults = APP_DEFAULTS[appId] ?? {
-          title: appId,
-          size: { width: 500, height: 380 },
-        };
+        const app = getApp(appId);
+        if (!app) return;
         pushWindow(get, set as SetFn, {
           appId,
-          title: defaults.title,
-          size: defaults.size,
+          title: windowTitle(app),
+          size: app.defaultSize,
           dedupe: (w) => w.appId === appId,
         });
       },
 
       openFileExplorer: (initialPath) => {
-        const { title, size } = APP_DEFAULTS["explorer.exe"]!;
+        const app = requireApp("explorer.exe");
         pushWindow(get, set as SetFn, {
-          appId: "explorer.exe",
-          title,
-          size,
+          appId: app.id,
+          title: windowTitle(app),
+          size: app.defaultSize,
           meta: { initialPath: JSON.stringify(initialPath) },
         });
       },
@@ -266,7 +224,7 @@ export const useDesktopStore = create<DesktopStore>()(
         pushWindow(get, set as SetFn, {
           appId: "text-viewer",
           title: filename,
-          size: { width: 700, height: 520 },
+          size: requireApp("text-viewer").defaultSize,
           meta: { filename, url },
           dedupe: (w) => w.appId === "text-viewer" && w.meta?.url === url,
         });
@@ -276,7 +234,7 @@ export const useDesktopStore = create<DesktopStore>()(
         pushWindow(get, set as SetFn, {
           appId: "notepad",
           title: `Notepad — ${filename}`,
-          size: { width: 560, height: 400 },
+          size: requireApp("notepad").defaultSize,
           meta: { filename, url, ...(fsId ? { fsId } : {}) },
           dedupe: (w) => w.appId === "notepad" && w.meta?.url === url,
         });
@@ -286,28 +244,27 @@ export const useDesktopStore = create<DesktopStore>()(
         pushWindow(get, set as SetFn, {
           appId: "media-viewer",
           title: filename,
-          size: { width: 700, height: 520 },
+          size: requireApp("media-viewer").defaultSize,
           meta: { filename, url },
           dedupe: (w) => w.appId === "media-viewer" && w.meta?.url === url,
         });
       },
 
       openBrowserWindow: (url) => {
-        const { title, size } = APP_DEFAULTS["browser.exe"]!;
+        const app = requireApp("browser.exe");
         pushWindow(get, set as SetFn, {
-          appId: "browser.exe",
-          title,
-          size,
+          appId: app.id,
+          title: windowTitle(app),
+          size: app.defaultSize,
           meta: { initialUrl: url },
         });
       },
 
       openGuestbookEditor: (filename) => {
-        const { size } = APP_DEFAULTS["guestbook-editor"]!;
         pushWindow(get, set as SetFn, {
           appId: "guestbook-editor",
           title: `Notepad — ${filename}.txt`,
-          size,
+          size: requireApp("guestbook-editor").defaultSize,
           meta: { filename },
           dedupe: (w) =>
             w.appId === "guestbook-editor" && w.meta?.filename === filename,

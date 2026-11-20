@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { APPS } from "@/lib/client/apps";
+import { LISTED_APPS } from "@/lib/client/apps";
 import { useDesktopStore } from "@/store/windowStore";
 
 export interface StartMenuProps {
@@ -31,7 +31,7 @@ export default function StartMenu({ onClose }: StartMenuProps) {
     };
   }, [onClose]);
 
-  const visibleApps = APPS.filter((a) => !a.adminOnly || isAdmin);
+  const visibleApps = LISTED_APPS.filter((a) => !a.adminOnly || isAdmin);
 
   return (
     <div

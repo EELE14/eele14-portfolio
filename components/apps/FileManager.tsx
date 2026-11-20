@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { useFetchData } from "@/lib/client/hooks/useFetchData";
-import { useDesktopStore } from "@/store/windowStore";
+import { useInboxStore } from "@/store/inboxStore";
 import SensitiveValue from "@/components/ui/SensitiveValue";
 
 interface Message {
@@ -17,15 +17,15 @@ interface Message {
 }
 
 export default function Inbox() {
-  const setInboxUnread = useDesktopStore((s) => s.setInboxUnread);
+  const setUnread = useInboxStore((s) => s.setUnread);
   const { data, loading, error, reload } =
     useFetchData<Message[]>("/api/messages");
   const messages = data ?? [];
   const [expanded, setExpanded] = useState<string | null>(null);
 
   useEffect(() => {
-    if (data) setInboxUnread(data.filter((m) => !m.read).length);
-  }, [data, setInboxUnread]);
+    if (data) setUnread(data.filter((m) => !m.read).length);
+  }, [data, setUnread]);
 
   async function markRead(id: string, read: boolean) {
     await fetch(`/api/messages/${id}`, {

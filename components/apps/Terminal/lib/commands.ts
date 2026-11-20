@@ -1,5 +1,5 @@
 /* Copyright (c) 2026 eele14. All Rights Reserved. */
-import { APPS } from "@/lib/client/apps";
+import { LISTED_APPS } from "@/lib/client/apps";
 import {
   listDir,
   readFile,
@@ -315,7 +315,7 @@ export async function runCommand(
         }
       }
 
-      const app = APPS.find((a) => a.id === target);
+      const app = LISTED_APPS.find((a) => a.id === target);
       if (app) {
         openWindow(app.id);
         return ok([mkLine("output", `Opening ${app.title}...`)]);
