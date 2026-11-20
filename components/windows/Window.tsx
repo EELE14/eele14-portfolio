@@ -16,6 +16,7 @@ export interface WindowProps {
   children: React.ReactNode;
   zIndex: number;
   isMaximized: boolean;
+  isMinimized: boolean;
   position: { x: number; y: number };
   size: { width: number; height: number };
   minWidth?: number;
@@ -29,6 +30,7 @@ export default function Window({
   children,
   zIndex,
   isMaximized,
+  isMinimized,
   position,
   size,
   minWidth = 280,
@@ -99,7 +101,7 @@ export default function Window({
       enableResizing={!isMaximized}
       onDragStop={handleDragStop}
       onResizeStop={handleResizeStop}
-      style={{ zIndex }}
+      style={{ zIndex, display: isMinimized ? "none" : undefined }}
       onMouseDown={() => focusWindow(id)}
     >
       <div

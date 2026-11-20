@@ -76,11 +76,11 @@ const APP_COMPONENTS: Record<string, React.ComponentType> = {
 
 export default function WindowManager() {
   const windows = useDesktopStore((s) => s.windows);
-  const visible = windows.filter((w) => w.isOpen && !w.isMinimized);
+  const open = windows.filter((w) => w.isOpen);
 
   return (
     <>
-      {visible.map((win) => {
+      {open.map((win) => {
         const isRepo = win.appId === "repo-explorer";
 
         const isMedia = win.appId === "media-viewer";
@@ -148,6 +148,7 @@ export default function WindowManager() {
             title={win.title}
             zIndex={win.zIndex}
             isMaximized={win.isMaximized}
+            isMinimized={win.isMinimized}
             position={win.position}
             size={win.size}
             minWidth={minSize?.width}
