@@ -131,18 +131,7 @@ function pushWindow(get: GetFn, set: SetFn, opts: PushOptions): void {
   if (opts.dedupe) {
     const existing = windows.find((w) => w.isOpen && opts.dedupe!(w));
     if (existing) {
-      if (existing.isMinimized) {
-        set((s) => ({
-          zCounter: s.zCounter + 1,
-          windows: s.windows.map((w) =>
-            w.id === existing.id
-              ? { ...w, isMinimized: false, zIndex: s.zCounter + 1 }
-              : w,
-          ),
-        }));
-      } else {
-        get().focusWindow(existing.id);
-      }
+      get().focusWindow(existing.id);
       return;
     }
   }
@@ -295,7 +284,9 @@ export const useDesktopStore = create<DesktopStore>()(
         set((s) => ({
           zCounter: s.zCounter + 1,
           windows: s.windows.map((w) =>
-            w.id === id ? { ...w, zIndex: s.zCounter + 1 } : w,
+            w.id === id
+              ? { ...w, isMinimized: false, zIndex: s.zCounter + 1 }
+              : w,
           ),
         }));
       },

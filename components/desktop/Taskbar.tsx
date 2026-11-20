@@ -473,13 +473,7 @@ export default function Taskbar() {
           <button
             key={win.id}
             role="listitem"
-            onClick={() => {
-              if (win.isMinimized) {
-                useDesktopStore.getState().openWindow(win.appId);
-              } else {
-                focusWindow(win.id);
-              }
-            }}
+            onClick={() => focusWindow(win.id)}
             onDoubleClick={() => minimizeWindow(win.id)}
             aria-label={`${win.title}${win.isMinimized ? " (minimized)" : ""}`}
             title={win.title}
