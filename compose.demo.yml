@@ -1,0 +1,38 @@
+# Secrets: JWT_SECRET, BARE_TOKEN_SECRET, optionally
+# DB_PASSWORD, ADMIN_EMAIL, ADMIN_PASSWORD, GITHUB_TOKEN, LLAMA_API_KEY and RESEND_API_KEY.
+services:
+  app:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://portfolio:${DB_PASSWORD:-portfolio-demo}@db:5432/portfolio
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      BARE_TOKEN_SECRET: ${BARE_TOKEN_SECRET:?BARE_TOKEN_SECRET is required}
+      ALLOWED_ORIGIN: https://demo.eele14.dev
+      NEXT_PUBLIC_BASE_URL: https://demo.eele14.dev
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      LLAMA_API_KEY: ${LLAMA_API_KEY:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+    ports:
+      - "127.0.0.1:${DEMO_PORT}:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: portfolio
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-portfolio-demo}
+      POSTGRES_DB: portfolio
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U portfolio -d portfolio"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+volumes:
+  pgdata:

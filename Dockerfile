@@ -19,7 +19,8 @@ RUN addgroup --system --gid 1001 nodejs \
  && adduser  --system --uid 1001 nextjs
 
 COPY package.json package-lock.json ./
-RUN npm ci --ignore-scripts --omit=dev
+COPY --from=deps /app/node_modules ./node_modules
+RUN npm prune --omit=dev --ignore-scripts
 
 
 COPY --from=builder /app/node_modules/@prisma/engines ./node_modules/@prisma/engines
